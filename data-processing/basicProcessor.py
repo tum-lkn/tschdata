@@ -7,10 +7,11 @@ import numpy as np
 import sys
 import datetime
 
-from processor import LogProcessor
+from logProcessor import LogProcessor
+from helperFunctions import find_latest_dump
 
 gl_mote_range = range(1, 14)
-gl_dump_path = os.getcwd() + '/../'
+gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
 gl_image_path = os.getenv("HOME") + ''
 
 
@@ -30,7 +31,7 @@ class BasicProcessor(LogProcessor):
             if pkt.src_addr != addr:
                 continue
 
-            if pkt.get_delay() < 0:
+            if pkt.delay < 0:
                 print(pkt.asn_last)
                 print(pkt.asn_first)
                 # erroneous packet
@@ -151,10 +152,10 @@ if __name__ == '__main__':
     # if len(sys.argv) != 2:
     #    exit("Usage: %s dumpfile" % sys.argv[0])
 
-    folder = gl_dump_path + 'tdma/no-interference-hopping/'
+    folder = gl_dump_path
 
     # p = LogProcessor(folder+find_latest_dump(folder))
-    p = BasicProcessor(filename=folder+'no_interference_hopping.log')
+    p = BasicProcessor(filename=folder+find_latest_dump(folder))
 
     print(p.find_motes_in_action())
 

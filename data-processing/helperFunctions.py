@@ -100,7 +100,8 @@ class MeasurementPacket(TestbedPacket):
         temp[0] = l[0]
         return sum(temp)
 
-    def get_delay(self):
+    @property
+    def delay(self):
         return self.asn_last - self.asn_first
 
     def num_hops(self):
@@ -110,6 +111,9 @@ class MeasurementPacket(TestbedPacket):
                 num_hops += 1
         return num_hops
 
+    def get_path(self):
+        path = [hop['addr'] for hop in self.hop_info]
+        return path
 
 class TestTestbedPackets(unittest.TestCase):
     """

@@ -66,7 +66,7 @@ class LogProcessor:
             if pkt.src_addr != addr:
                 continue
 
-            d = pkt.get_delay()  # /pkt.num_hops()
+            d = pkt.delay  # /pkt.num_hops()
 
             if d < 0:
                 # shouldn't be the case...
