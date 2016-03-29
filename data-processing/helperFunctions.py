@@ -133,6 +133,10 @@ class TestTestbedPackets(unittest.TestCase):
         self.assertEqual(pkt_recovered.src_addr, 2)
 
 
+def find_latest_dump(path):
+    mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime
+    return list(sorted(os.listdir(path), key=mtime))[-1]
+
 
 if __name__ == '__main__':
     '''
