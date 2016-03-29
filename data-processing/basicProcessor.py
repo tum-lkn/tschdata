@@ -1,3 +1,8 @@
+"""
+Most basic processing and plots from the dump.
+Can be used to monitor current network status
+"""
+
 __author__ = 'Mikhail Vilgelm'
 
 
@@ -11,7 +16,8 @@ from logProcessor import LogProcessor
 from helperFunctions import find_latest_dump
 
 gl_mote_range = range(1, 14)
-gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
+# gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
+gl_dump_path = os.getcwd() + '/../' + 'tdma/no-interference-hopping/'
 gl_image_path = os.getenv("HOME") + ''
 
 
@@ -155,7 +161,8 @@ if __name__ == '__main__':
     folder = gl_dump_path
 
     # p = LogProcessor(folder+find_latest_dump(folder))
-    p = BasicProcessor(filename=folder+find_latest_dump(folder))
+    p = BasicProcessor(filename=folder+'interference_hopping.log')#find_latest_dump(folder))
+
 
     print(p.find_motes_in_action())
 

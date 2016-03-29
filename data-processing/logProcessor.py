@@ -1,3 +1,6 @@
+"""
+Main module for log processing
+"""
 __author__ = 'Mikhail Vilgelm'
 
 
@@ -72,7 +75,7 @@ class LogProcessor:
                 # shouldn't be the case...
                 continue
 
-            delay.append(d*15/1000)
+            delay.append(d)
 
         return delay
 
@@ -99,16 +102,16 @@ class LogProcessor:
         return motes
 
     def sort_by_motes(self):
-            """
-            Sorts packets by the src address
-            :return: a list where every element is a list of packets corresponding to a specific mote
-            """
-            motes = [[] for x in gl_mote_range]
+        """
+        Sorts packets by the src address
+        :return: a list where every element is a list of packets corresponding to a specific mote
+        """
+        motes = [[] for x in gl_mote_range]
 
-            for pkt in self.packets:
-                motes[pkt.src_addr-1].append(pkt)
+        for pkt in self.packets:
+            motes[pkt.src_addr-1].append(pkt)
 
-            return motes
+        return motes
 
 
 if __name__ == '__main__':

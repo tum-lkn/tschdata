@@ -1,3 +1,6 @@
+"""
+Helper functions and basic data structures for processing of logged packet.
+"""
 __author__ = 'Mikhail Vilgelm'
 
 import pickle
@@ -6,8 +9,10 @@ import unittest
 import numpy as np
 import ast
 import os
+import scipy.stats as st
 import matplotlib.pyplot as plt
 
+gl_t_slot = 0.015  # in seconds
 
 class TestbedPacket:
 
@@ -102,7 +107,7 @@ class MeasurementPacket(TestbedPacket):
 
     @property
     def delay(self):
-        return self.asn_last - self.asn_first
+        return (self.asn_last - self.asn_first)*gl_t_slot
 
     def num_hops(self):
         num_hops = 0
@@ -140,6 +145,13 @@ class TestTestbedPackets(unittest.TestCase):
 def find_latest_dump(path):
     mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime
     return list(sorted(os.listdir(path), key=mtime))[-1]
+
+def mean_confidence_interval(data, confidence=0.95):
+    a = 1.0*np.array(data)
+    n = len(a)
+    m, se = np.mean(a), st.sem(a)
+    h = se * st.t._ppf((1+confidence)/2., n-1)
+    return m, m-h, m+h
 
 
 if __name__ == '__main__':
