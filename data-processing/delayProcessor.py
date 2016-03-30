@@ -6,7 +6,11 @@ import seaborn
 import numpy as np
 import matplotlib.pyplot as plt
 
+from matplotlib import rcParams
+rcParams.update({'figure.autolayout': True})
+
 from logProcessor import LogProcessor
+from helperFunctions import mean_confidence_interval
 
 gl_num_active_slots = 13
 gl_num_off_slots = 2
@@ -73,7 +77,14 @@ class Schedule:
         :param path: list of motes
         :return:
         '''
-        return sum([self.get_min_link_delay(hop, hop+1) for idx, hop in enumerate(path) if (idx != len(path)-1)])
+        # return sum([self.get_min_link_delay(hop, hop+1) for idx, hop in enumerate(path) if (idx != len(path)-1)])
+        delay = 0.0
+        for idx, hop in enumerate(path):
+            if idx == 0:
+                delay += 0.0
+            else:
+                delay += self.get_min_link_delay(hop-1, hop)
+        return delay
 
     def get_min_packet_delay(self, pkt):
         '''
@@ -84,14 +95,15 @@ class Schedule:
         delay = 0.0
         for idx, hop in enumerate(pkt.hop_info):
             if idx == 0:
-                # first hop - consider minimum delay for the first retransmission
+                # first hop - consider half delay for the first retransmission
+                # delay += 0.5*self.frame_length + self.frame_length*(3 - hop['retx'])
                 delay += self.frame_length*(3 - hop['retx'])
-            elif idx != (len(pkt.hop_info)-1):
-                delay += (self.get_min_link_delay(hop['addr'], pkt.hop_info[idx+1]['addr']) +
-                         self.frame_length*(3 - hop['retx']))
             else:
-                delay += (self.get_min_link_delay(hop['addr'], 1) +
+                delay += (self.get_min_link_delay(pkt.hop_info[idx-1]['addr'], hop['addr']) +
                          self.frame_length*(3 - hop['retx']))
+            # else:
+#                delay += (self.get_min_link_delay(hop['addr'], 1) +
+#                         self.frame_length*(3 - hop['retx']))
 
         return delay
 
@@ -111,19 +123,28 @@ class DelayLogProcessor(LogProcessor):
         paths_min = []
 
         for pkt in self.packets:
-            path = pkt.get_path()
-            if not (str(path) in seen_paths):
-                paths_real.append((path, [pkt.delay]))
-                paths_min.append((path, [self.schedule.get_min_packet_delay(pkt)]))
-                seen_paths.add(str(path))
+            if pkt.delay>=0:
+                path = pkt.get_path()
+                if not (str(path) in seen_paths):
+                    paths_real.append((path, [pkt.delay]))
+                    paths_min.append((path, [self.schedule.get_min_packet_delay(pkt)]))
+                    seen_paths.add(str(path))
+                else:
+                    for idx, t in enumerate(paths_min):
+                        if t[0] == path:
+                            real_delay = pkt.delay
+                            min_delay = self.schedule.get_min_packet_delay(pkt)
+                            # debug
+                            min_path_delay = self.schedule.get_min_path_delay(t[0])
+                            assert (real_delay >= min_delay)
+                            assert (min_delay >= min_path_delay)
+
+                            paths_min[idx][1].append(min_delay)
+                            paths_real[idx][1].append(real_delay)
+                            break
             else:
-                for idx, t in enumerate(paths_min):
-                    if t[0] == path:
-                        real_delay = pkt.delay
-                        min_delay = self.schedule.get_min_packet_delay(pkt)
-                        paths_min[idx][1].append(min_delay)
-                        paths_real[idx][1].append(real_delay)
-                        break
+                print('negative delay...')
+                print(pkt)
 
         return paths_real, paths_min
 
@@ -175,21 +196,45 @@ class DelayLogProcessor(LogProcessor):
 
         paths_real, paths_min = self.get_all_paths_w_delay()
 
+        # plot 1
         plt.figure()
-
         # boxplot for real values
-        plt.boxplot([p[1] for p in paths_real])
+        # plt.boxplot([p[1] for p in paths_real])
+
+        zipped_and_sorted = [(x,y) for (x, y) in sorted(zip(paths_min, paths_real),
+                             key=lambda p: self.schedule.get_min_path_delay(p[0][0]))]
+
+        paths_min = [z[0] for z in zipped_and_sorted]
+        paths_real = [z[1] for z in zipped_and_sorted]
+
+        # sort by minimum path length
+        # paths_min = sorted(paths_min, key=lambda p: self.schedule.get_min_path_delay(p[0]+[1]))
 
         # plot for mean values
-        plt.plot(list(range(1, len(paths_real)+1)), [np.mean(p[1]) for p in paths_real], label='avg delay')
+        plt.plot(list(range(1, len(paths_real)+1)), [np.mean(p[1]) for p in paths_real],
+                 's-', label='avg delay')
 
         # plot for average minimum packet delays
-        plt.plot(list(range(1, len(paths_real)+1)), [np.mean(p[1]) for p in paths_min], label='avg min packet delay')
+        plt.plot(list(range(1, len(paths_real)+1)), [np.mean(p[1]) for p in paths_min],
+                 '^-', label='avg min packet delay', )
 
         # plot for minimum path delays
-        plt.plot(list(range(1, len(paths_real)+1)), [self.schedule.get_min_path_delay(p[0]+[1]) for p in paths_min],
-                 label='min path delay')
+        min_possible_delay = [self.schedule.get_min_path_delay(p[0]) for p in paths_min]
+        plt.plot(list(range(1, len(paths_real)+1)), min_possible_delay,
+                 '--',
+                 label='min path delay, (1 tx)')
 
+        # plot for minimum path delays with two retx
+        plt.plot(list(range(1, len(paths_real)+1)),
+                 [self.schedule.get_min_path_delay(p[0])+self.schedule.frame_length*len(p[0]) for p in paths_min],
+                 '--',
+                 label='min path delay, (2 tx)')
+
+        # plot for minimum path delays with three retx
+        plt.plot(list(range(1, len(paths_real)+1)),
+                 [self.schedule.get_min_path_delay(p[0])+2*self.schedule.frame_length*len(p[0]) for p in paths_min],
+                 '--',
+                 label='min path delay, (3 tx)')
 
         x = range(1, len([str(p[0]) for p in paths_real])+1)
         plt.xticks(x,  [str(p[0]) for p in paths_real])
@@ -197,7 +242,7 @@ class DelayLogProcessor(LogProcessor):
         plt.setp(labels, rotation=90)
 
 
-        plt.ylim((0, 7))
+        # plt.ylim((0, 7))
         plt.ylabel('delay, s')
         plt.xlabel('path #')
         plt.legend(loc=2)
@@ -205,6 +250,22 @@ class DelayLogProcessor(LogProcessor):
         if gl_save:
             plt.savefig(gl_image_path+re.findall(r"(.+?)\.log", self.filename.split('/')[-1])[0]+'_path_delay.png',
                         format='png', bbox='tight')
+
+        # return data for comparison plot
+
+        interf_delay = []
+        buffer_delay = []
+
+        for idx, p in enumerate(paths_min):  # take every path
+            for i, d in enumerate(p[1]):  # take every packet's delay
+                i_delay = d - self.schedule.get_min_path_delay(p[0])
+                b_delay = paths_real[idx][1][i] - d
+                interf_delay.append(i_delay)
+                buffer_delay.append(b_delay)
+
+        return interf_delay, buffer_delay
+
+
 
     def pkt_served_per_mote(self):
 
@@ -230,7 +291,7 @@ class DelayLogProcessor(LogProcessor):
         plt.setp(labels, rotation=90)
 
 if __name__ == '__main__':
-    gl_save = True
+    # gl_save = True
     sched = Schedule(num_slots=gl_num_active_slots, num_off=gl_num_off_slots, num_serial=gl_num_serial_slots)
 
     sched.plot_min_delay_heatmap()
@@ -239,12 +300,31 @@ if __name__ == '__main__':
 
     p = DelayLogProcessor(filename=folder+'no_interference_hopping.log', schedule=sched)
 
-    p.plot_path_delay()
+    int_delay0, buf_delay0 = p.plot_path_delay()
     p.plot_links_heatmap()
 
     p1 = DelayLogProcessor(filename=folder+'interference_hopping.log', schedule=sched)
-    p1.plot_path_delay()
+    int_delay1, buf_delay1 = p1.plot_path_delay()
     p1.plot_links_heatmap()
+
+    # comparison figure for different delays
+    plt.figure()
+
+    zipped = [int_delay0, int_delay1, buf_delay0, buf_delay1]
+
+    # print([np.mean(s) for s in zipped])
+    # print([mean_confidence_interval(s) for s in zipped])
+
+    plt.boxplot(zipped)
+    plt.ylim((-0.1, 1.5))
+
+    x = range(1, 5)
+    plt.xticks(x,  ['int (no int)', 'int (int)', 'buf (no int)', 'buf (int)'])
+    locs, labels = plt.xticks()
+    plt.setp(labels, rotation=90)
+
+    plt.savefig(gl_image_path+'delay_sources.png',
+                        format='png', bbox='tight')
 
     seaborn.plt.show()
     # plt.show()

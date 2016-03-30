@@ -9,6 +9,7 @@ import unittest
 import numpy as np
 import ast
 import os
+import math
 import scipy.stats as st
 import matplotlib.pyplot as plt
 
@@ -151,7 +152,7 @@ def mean_confidence_interval(data, confidence=0.95):
     n = len(a)
     m, se = np.mean(a), st.sem(a)
     h = se * st.t._ppf((1+confidence)/2., n-1)
-    return m, m-h, m+h
+    return h
 
 
 if __name__ == '__main__':

@@ -16,8 +16,8 @@ from logProcessor import LogProcessor
 from helperFunctions import find_latest_dump
 
 gl_mote_range = range(1, 14)
-# gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
-gl_dump_path = os.getcwd() + '/../' + 'tdma/no-interference-hopping/'
+gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
+# gl_dump_path = os.getcwd() + '/../' + 'tdma/no-interference-hopping/'
 gl_image_path = os.getenv("HOME") + ''
 
 
@@ -160,8 +160,8 @@ if __name__ == '__main__':
 
     folder = gl_dump_path
 
-    # p = LogProcessor(folder+find_latest_dump(folder))
-    p = BasicProcessor(filename=folder+'interference_hopping.log')#find_latest_dump(folder))
+    p = BasicProcessor(filename=folder+find_latest_dump(folder))
+    # p = BasicProcessor(filename=folder+'interference_hopping.log')#find_latest_dump(folder))
 
 
     print(p.find_motes_in_action())
@@ -169,9 +169,6 @@ if __name__ == '__main__':
     p.plot_num_packets(show=False)
     p.plot_timeline(show=False)
     p.plot_delays(show=False)
-
-    # p.plot_delays(normalized=True, show=False)
-
     p.plot_avg_hops(show=False)
     p.plot_retx(show=False)
 
