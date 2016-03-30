@@ -315,7 +315,7 @@ if __name__ == '__main__':
     # print([np.mean(s) for s in zipped])
     # print([mean_confidence_interval(s) for s in zipped])
 
-    plt.boxplot(zipped)
+    plt.boxplot(zipped, showmeans=True)
     plt.ylim((-0.1, 1.5))
 
     x = range(1, 5)
