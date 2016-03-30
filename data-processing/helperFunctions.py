@@ -117,9 +117,12 @@ class MeasurementPacket(TestbedPacket):
                 num_hops += 1
         return num_hops
 
-    def get_path(self):
+    def get_path(self, full=True):
         path = [hop['addr'] for hop in self.hop_info]
-        return path
+        if full:
+            return path + [1]
+        else:
+            return path
 
 class TestTestbedPackets(unittest.TestCase):
     """

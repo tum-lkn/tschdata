@@ -124,7 +124,7 @@ class DelayLogProcessor(LogProcessor):
 
         for pkt in self.packets:
             if pkt.delay>=0:
-                path = pkt.get_path()
+                path = pkt.get_path(full=False)
                 if not (str(path) in seen_paths):
                     paths_real.append((path, [pkt.delay]))
                     paths_min.append((path, [self.schedule.get_min_packet_delay(pkt)]))
@@ -157,7 +157,7 @@ class DelayLogProcessor(LogProcessor):
         paths = []
 
         for pkt in self.packets:
-            path = pkt.get_path()
+            path = pkt.get_path(full=False)
             if not (str(path) in seen_paths):
                 paths.append([path, 1])
                 seen_paths.add(str(path))
