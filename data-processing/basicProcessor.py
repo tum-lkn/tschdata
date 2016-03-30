@@ -51,7 +51,7 @@ class BasicProcessor(LogProcessor):
 
         return pkt_hops
 
-    def plot_retx(self, show=True):
+    def plot_retx(self):
 
         retx = []
         for pkt in self.packets:
@@ -61,10 +61,9 @@ class BasicProcessor(LogProcessor):
 
         plt.figure()
         plt.hist(retx)
-        if show:
-            plt.show()
 
-    def plot_delay(self, addr, show=True):
+
+    def plot_delay(self, addr):
         """
 
         :return:
@@ -72,11 +71,10 @@ class BasicProcessor(LogProcessor):
         plt.figure()
         plt.boxplot(self.get_delays(addr))
         plt.grid(True)
-        if show:
-            plt.show()
 
 
-    def plot_delays(self, show=True):
+
+    def plot_delays(self):
         """
 
         :return:
@@ -91,11 +89,9 @@ class BasicProcessor(LogProcessor):
         plt.xlabel('mote #')
         plt.grid(True)
 
-        if show:
-            plt.show()
 
 
-    def plot_avg_hops(self, show=True):
+    def plot_avg_hops(self):
         """
 
         :return:
@@ -112,12 +108,10 @@ class BasicProcessor(LogProcessor):
         plt.ylabel('hops')
         plt.xlabel('mote #')
 
-        if show:
-            plt.show()
 
 
 
-    def plot_timeline(self, show=True):
+    def plot_timeline(self):
 
         motes = self.sort_by_motes()
 
@@ -132,10 +126,7 @@ class BasicProcessor(LogProcessor):
         plt.legend(loc=0)
         plt.grid(True)
 
-        if show:
-            plt.show()
-
-    def plot_num_packets(self, show=True):
+    def plot_num_packets(self):
 
         motes = self.sort_by_motes()
 
@@ -148,8 +139,6 @@ class BasicProcessor(LogProcessor):
 
         plt.grid(True)
 
-        if show:
-            plt.show()
 
 
 
@@ -166,10 +155,10 @@ if __name__ == '__main__':
 
     print(p.find_motes_in_action())
 
-    p.plot_num_packets(show=False)
-    p.plot_timeline(show=False)
-    p.plot_delays(show=False)
-    p.plot_avg_hops(show=False)
-    p.plot_retx(show=False)
+    p.plot_num_packets()
+    p.plot_timeline()
+    p.plot_delays()
+    p.plot_avg_hops()
+    p.plot_retx()
 
     plt.show()
