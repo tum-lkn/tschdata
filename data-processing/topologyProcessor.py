@@ -60,6 +60,39 @@ class TopologyLogProcessor(LogProcessor):
 
         return seen_links,link_occurrences
 
+    def plot_colormap(self):
+        plt.figure()
+        motes,node_occurrences=self.get_seen_nodes()
+        links,link_occurrences=self.get_seen_links()
+
+        G = nx.Graph()
+
+        print(motes)
+        G.add_nodes_from(motes)
+
+        nodes= [(node, node_occurrences[idx]) for idx, node in enumerate(motes)]
+        # print(nodes)
+        # print(G.nodes())
+        s_nodes=sorted(nodes,key=itemgetter(0))
+        # print(s_nodes)
+        w_nodes=[weight[1]/10 for weight in s_nodes]
+        # print(w_nodes)
+
+        edges = [(link[0], link[1], link_occurrences[idx]) for idx, link in enumerate(links)]
+        G.add_weighted_edges_from(edges)
+
+        #print(edges)
+        l=list(G.edges_iter(data='weight'))
+        #print(l)
+
+
+        pos = nx.circular_layout(G)
+        #pos=[ {x,x} for x in range(len(nodes))]
+        #print(pos)
+
+        colors = [data[2] for data in l]
+        nx.draw(G,pos, node_color='#A0CBE2', node_size=w_nodes ,edge_color=colors, width=4, edge_cmap=plt.cm.Blues, with_labels=True)
+
 if __name__ == '__main__':
 
     folder = gl_dump_path + 'tdma/no-interference-hopping/'
