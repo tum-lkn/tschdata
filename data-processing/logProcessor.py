@@ -9,11 +9,13 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
-import datetime
+from datetime import timedelta
+import json
 
 
 gl_mote_range = range(1, 14)
 gl_dump_path = os.getcwd() + '/../'
+# gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
 gl_image_path = os.getenv("HOME") + ''
 
 
@@ -45,8 +47,9 @@ class LogProcessor:
 
             lines = line.split('\t')
             line = lines[0]
+            timestamp = lines[1].split('\n')[0]
 
-            pkt = TestbedPacket.load_data(line)
+            pkt = TestbedPacket.load_data(line, timestamp)
 
             packets.append(pkt)
 
@@ -88,11 +91,12 @@ class LogProcessor:
         for line in self.yield_line():
             lines = line.split('\t')
             line = lines[0]
+            timestamp = lines[1].split('\n')[0]
 
             if line == '[]':
                 continue
 
-            pkt = TestbedPacket.load_data(line)
+            pkt = TestbedPacket.load_data(line, timestamp)
 
             for v in pkt.hop_info:
                 src = v['addr']
@@ -113,17 +117,38 @@ class LogProcessor:
 
         return motes
 
+    def write_as_json(self, output):
+
+        f = open(output, 'w')
+        f.write('{'+'\"packets\":'+'[')
+        for idx, pkt in enumerate(self.packets):
+            print(pkt.serialize())
+            if idx != (len(self.packets)-1):
+                f.write(str(pkt.serialize()).replace('\'', '\"')+',')
+            else:
+                f.write(str(pkt.serialize()).replace('\'', '\"')+']}')
+
+        f.close()
+
+
 
 if __name__ == '__main__':
 
     # if len(sys.argv) != 2:
     #    exit("Usage: %s dumpfile" % sys.argv[0])
 
-    folder = gl_dump_path + 'tdma/no-interference-hopping/'
+    folder = gl_dump_path  + 'tdma'
 
     # p = LogProcessor(folder+find_latest_dump(folder))
-    p = LogProcessor(filename=folder+'no_interference_hopping.log')
+    p = LogProcessor(filename=folder+'/no-interference-hopping/interference_hopping.log')
 
     print(p.find_motes_in_action())
 
+    p.write_as_json('../json/tdma_interference.json')
+
+    with open('../json/tdma_interference.json') as json_data:
+        a = json.load(json_data)
+
+    print('finished loading... ')
+    print(a['packets'][0])
 

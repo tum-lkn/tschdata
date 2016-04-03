@@ -12,13 +12,14 @@ import os
 import math
 import scipy.stats as st
 import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
 
 gl_t_slot = 0.015  # in seconds
 
 class TestbedPacket:
 
     @classmethod
-    def load_data(cls, data, format='SMARTGRID'):
+    def load_data(cls, data, timestamp, format='SMARTGRID'):
         """
         Factory method
         """
@@ -26,7 +27,7 @@ class TestbedPacket:
             data = ast.literal_eval(data)
             return MeasurementPacket(asn_first=data[6:11], asn_last=data[1:6],
                                      src_addr=int(data[0]), seqN=data[11:13],
-                                     hop_info=data[14:])
+                                     hop_info=data[14:], timestamp=timestamp)
         elif format == 'AIRCRAFT':
             return StringPacket(data)
 
@@ -96,6 +97,14 @@ class MeasurementPacket(TestbedPacket):
         dump = pickle.dumps(self)
         return dump.replace(b'\n', b'\\n')
 
+    def serialize(self):
+        """
+        Serialize object and return as bytes + escape the newline character
+        :return:
+        """
+        dump = self.__dict__
+        return dump
+
     def list_to_int(self, l):
         """
         Convert a multibyte value to a single number
@@ -145,10 +154,16 @@ class TestTestbedPackets(unittest.TestCase):
         self.assertEqual(pkt_recovered.seqN, 234)
         self.assertEqual(pkt_recovered.src_addr, 2)
 
+    def test_serialization(self):
+        test_pkt = '[2, 1, 65, 1, 0, 0, 239, 64, 1, 0, 0, 234, 0, 0, 2, 3, 23, 38, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]'
+        pkt = TestbedPacket.load_data(test_pkt)
+        print(pkt.serialize())
+
 
 def find_latest_dump(path):
     mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime
     return list(sorted(os.listdir(path), key=mtime))[-1]
+
 
 def mean_confidence_interval(data, confidence=0.95):
     a = 1.0*np.array(data)
