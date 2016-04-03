@@ -18,7 +18,7 @@ gl_t_slot = 0.015  # in seconds
 class TestbedPacket:
 
     @classmethod
-    def serialize_data(cls, data, format='SMARTGRID'):
+    def load_data(cls, data, format='SMARTGRID'):
         """
         Factory method
         """
@@ -136,7 +136,7 @@ class TestTestbedPackets(unittest.TestCase):
         """
         test_pkt = '[2, 1, 65, 1, 0, 0, 239, 64, 1, 0, 0, 234, 0, 0, 2, 3, 23, 38, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]'
 
-        pkt = TestbedPacket.serialize_data(test_pkt)
+        pkt = TestbedPacket.load_data(test_pkt)
 
         pkt_serialized = pkt.dump_compressed()
 

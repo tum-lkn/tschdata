@@ -14,6 +14,7 @@ import datetime
 
 from logProcessor import LogProcessor
 from helperFunctions import find_latest_dump
+from topologyProcessor import TopologyLogProcessor
 
 gl_mote_range = range(1, 14)
 gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
@@ -149,9 +150,11 @@ if __name__ == '__main__':
 
     folder = gl_dump_path
 
-    p = BasicProcessor(filename=folder+find_latest_dump(folder))
-    # p = BasicProcessor(filename=folder+'interference_hopping.log')#find_latest_dump(folder))
+    filename = folder+find_latest_dump(folder)
+    # filename=folder+'interference_hopping.log'
+    print('Creating a processor for %s' % filename)
 
+    p = BasicProcessor(filename=filename)
 
     print(p.find_motes_in_action())
 
@@ -160,5 +163,8 @@ if __name__ == '__main__':
     p.plot_delays()
     p.plot_avg_hops()
     p.plot_retx()
+
+    p = TopologyLogProcessor(filename=filename)
+    p.plot_colormap()
 
     plt.show()

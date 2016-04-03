@@ -46,7 +46,7 @@ class LogProcessor:
             lines = line.split('\t')
             line = lines[0]
 
-            pkt = TestbedPacket.serialize_data(line)
+            pkt = TestbedPacket.load_data(line)
 
             packets.append(pkt)
 
@@ -92,7 +92,7 @@ class LogProcessor:
             if line == '[]':
                 continue
 
-            pkt = TestbedPacket.serialize_data(line)
+            pkt = TestbedPacket.load_data(line)
 
             for v in pkt.hop_info:
                 src = v['addr']
