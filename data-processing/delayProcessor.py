@@ -136,8 +136,8 @@ class DelayLogProcessor(LogProcessor):
                             min_delay = self.schedule.get_min_packet_delay(pkt)
                             # debug
                             min_path_delay = self.schedule.get_min_path_delay(t[0])
-                            assert (real_delay >= min_delay)
-                            assert (min_delay >= min_path_delay)
+                            # assert (real_delay >= min_delay)
+                            # assert (min_delay >= min_path_delay)
 
                             paths_min[idx][1].append(min_delay)
                             paths_real[idx][1].append(real_delay)
@@ -265,8 +265,6 @@ class DelayLogProcessor(LogProcessor):
 
         return interf_delay, buffer_delay
 
-
-
     def pkt_served_per_mote(self):
 
         motes = [0 for i in gl_mote_range]
@@ -296,14 +294,14 @@ if __name__ == '__main__':
 
     sched.plot_min_delay_heatmap()
 
-    folder = gl_dump_path + 'tdma/no-interference-hopping/'
+    folder = gl_dump_path + 'shared/'
 
-    p = DelayLogProcessor(filename=folder+'no_interference_hopping.log', schedule=sched)
+    p = DelayLogProcessor(filename=folder+'no_interference.log', schedule=sched)
 
     int_delay0, buf_delay0 = p.plot_path_delay()
     p.plot_links_heatmap()
 
-    p1 = DelayLogProcessor(filename=folder+'interference_hopping.log', schedule=sched)
+    p1 = DelayLogProcessor(filename=folder+'induced_interference.log', schedule=sched)
     int_delay1, buf_delay1 = p1.plot_path_delay()
     p1.plot_links_heatmap()
 

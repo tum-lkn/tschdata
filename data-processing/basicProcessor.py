@@ -140,6 +140,11 @@ class BasicProcessor(LogProcessor):
 
         plt.grid(True)
 
+    def plot_app_drop_rate(self):
+        pass
+        # for mote in self.sort_by_motes():
+#            first_seqn =
+
 
 
 
