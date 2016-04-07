@@ -81,6 +81,7 @@ class Schedule:
         delay = 0.0
         for idx, hop in enumerate(path):
             if idx == 0:
+                # delay += 0.5*self.frame_length
                 delay += 0.0
             else:
                 delay += self.get_min_link_delay(hop-1, hop)
@@ -136,8 +137,8 @@ class DelayLogProcessor(LogProcessor):
                             min_delay = self.schedule.get_min_packet_delay(pkt)
                             # debug
                             min_path_delay = self.schedule.get_min_path_delay(t[0])
-                            # assert (real_delay >= min_delay)
-                            # assert (min_delay >= min_path_delay)
+                            assert (real_delay >= min_delay)
+                            assert (min_delay >= min_path_delay)
 
                             paths_min[idx][1].append(min_delay)
                             paths_real[idx][1].append(real_delay)
@@ -210,28 +211,30 @@ class DelayLogProcessor(LogProcessor):
         # sort by minimum path length
         # paths_min = sorted(paths_min, key=lambda p: self.schedule.get_min_path_delay(p[0]+[1]))
 
+        x_axis = list(range(1, len(paths_real)+1))
+
         # plot for mean values
-        plt.plot(list(range(1, len(paths_real)+1)), [np.mean(p[1]) for p in paths_real],
+        plt.plot(x_axis, [np.mean(p[1]) for p in paths_real],
                  's-', label='avg delay')
 
         # plot for average minimum packet delays
-        plt.plot(list(range(1, len(paths_real)+1)), [np.mean(p[1]) for p in paths_min],
+        plt.plot(x_axis, [np.mean(p[1]) for p in paths_min],
                  '^-', label='avg min packet delay', )
 
         # plot for minimum path delays
         min_possible_delay = [self.schedule.get_min_path_delay(p[0]) for p in paths_min]
-        plt.plot(list(range(1, len(paths_real)+1)), min_possible_delay,
+        plt.plot(x_axis, min_possible_delay,
                  '--',
                  label='min path delay, (1 tx)')
 
         # plot for minimum path delays with two retx
-        plt.plot(list(range(1, len(paths_real)+1)),
+        plt.plot(x_axis,
                  [self.schedule.get_min_path_delay(p[0])+self.schedule.frame_length*len(p[0]) for p in paths_min],
                  '--',
                  label='min path delay, (2 tx)')
 
         # plot for minimum path delays with three retx
-        plt.plot(list(range(1, len(paths_real)+1)),
+        plt.plot(x_axis,
                  [self.schedule.get_min_path_delay(p[0])+2*self.schedule.frame_length*len(p[0]) for p in paths_min],
                  '--',
                  label='min path delay, (3 tx)')
@@ -294,7 +297,7 @@ if __name__ == '__main__':
 
     sched.plot_min_delay_heatmap()
 
-    folder = gl_dump_path + 'shared/'
+    folder = gl_dump_path + 'tdma/'
 
     p = DelayLogProcessor(filename=folder+'no_interference.log', schedule=sched)
 

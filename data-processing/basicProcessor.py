@@ -17,8 +17,8 @@ from helperFunctions import find_latest_dump
 from topologyProcessor import TopologyLogProcessor
 
 gl_mote_range = range(1, 14)
-gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
-# gl_dump_path = os.getcwd() + '/../' + 'tdma/no-interference-hopping/'
+# gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
+gl_dump_path = os.getcwd() + '/../' + 'tdma/'
 gl_image_path = os.getenv("HOME") + ''
 
 
@@ -84,13 +84,16 @@ class BasicProcessor(LogProcessor):
         delays = []
         for addr in gl_mote_range:
             delays.append(self.get_delays(addr))
-        plt.boxplot(delays)
+        plt.boxplot(delays, showmeans=True)
+
+        plt.ylim((0, 5))
 
         plt.ylabel('delay, s')
         plt.xlabel('mote #')
         plt.grid(True)
 
-
+        # return means
+        return [np.mean(d) for d in delays if len(d) > 0]
 
     def plot_avg_hops(self):
         """
@@ -108,9 +111,6 @@ class BasicProcessor(LogProcessor):
 
         plt.ylabel('hops')
         plt.xlabel('mote #')
-
-
-
 
     def plot_timeline(self):
 
@@ -142,8 +142,8 @@ class BasicProcessor(LogProcessor):
 
     def plot_app_drop_rate(self):
         pass
-        # for mote in self.sort_by_motes():
-#            first_seqn =
+        for mote in self.sort_by_motes():
+            pass
 
 
 
@@ -155,8 +155,8 @@ if __name__ == '__main__':
 
     folder = gl_dump_path
 
-    filename = folder+find_latest_dump(folder)
-    # filename=folder+'interference_hopping.log'
+    # filename = folder+find_latest_dump(folder)
+    filename=folder+'no_interference.log'
     print('Creating a processor for %s' % filename)
 
     p = BasicProcessor(filename=filename)
@@ -165,11 +165,28 @@ if __name__ == '__main__':
 
     p.plot_num_packets()
     p.plot_timeline()
-    p.plot_delays()
+    means_without = p.plot_delays()
     p.plot_avg_hops()
     p.plot_retx()
 
-    p = TopologyLogProcessor(filename=filename)
-    p.plot_colormap()
+
+    filename=folder+'induced_interference.log'
+    print('Creating a processor for %s' % filename)
+
+    p = BasicProcessor(filename=filename)
+
+    print(p.find_motes_in_action())
+
+    p.plot_num_packets()
+    p.plot_timeline()
+    means_with = p.plot_delays()
+    p.plot_avg_hops()
+    p.plot_retx()
+
+    print(['%.2f' % (y/x, ) for x, y in zip(means_without, means_with)])
 
     plt.show()
+
+
+
+
