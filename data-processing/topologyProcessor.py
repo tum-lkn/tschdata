@@ -9,7 +9,7 @@ from logProcessor import LogProcessor
 from operator import itemgetter
 
 
-gl_dump_path = os.getcwd() + '/../'
+gl_dump_path = os.getcwd() + '/../shared'
 gl_image_path = os.getenv("HOME") + ''
 
 

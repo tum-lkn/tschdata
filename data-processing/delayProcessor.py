@@ -137,8 +137,8 @@ class DelayLogProcessor(LogProcessor):
                             min_delay = self.schedule.get_min_packet_delay(pkt)
                             # debug
                             min_path_delay = self.schedule.get_min_path_delay(t[0])
-                            assert (real_delay >= min_delay)
-                            assert (min_delay >= min_path_delay)
+                            # assert (real_delay >= min_delay)
+                            # assert (min_delay >= min_path_delay)
 
                             paths_min[idx][1].append(min_delay)
                             paths_real[idx][1].append(real_delay)
@@ -208,6 +208,18 @@ class DelayLogProcessor(LogProcessor):
         paths_min = [z[0] for z in zipped_and_sorted]
         paths_real = [z[1] for z in zipped_and_sorted]
 
+        # debug
+        for idx, p in enumerate(paths_real):
+            print(str(p[0]) + ', sample size: %d' % len(p[1]))
+
+        # sort out barely used paths
+        paths_real = [p for p in paths_real if len(p[1]) >= 100]
+        paths_min = [p for p in paths_min if len(p[1]) >= 100]
+
+        return paths_real, paths_min
+
+    def print_delay(self, paths_real, paths_min):
+
         # sort by minimum path length
         # paths_min = sorted(paths_min, key=lambda p: self.schedule.get_min_path_delay(p[0]+[1]))
 
@@ -245,7 +257,7 @@ class DelayLogProcessor(LogProcessor):
         plt.setp(labels, rotation=90)
 
 
-        # plt.ylim((0, 7))
+        plt.ylim((0, 1.4))
         plt.ylabel('delay, s')
         plt.xlabel('path #')
         plt.legend(loc=2)
@@ -261,8 +273,8 @@ class DelayLogProcessor(LogProcessor):
 
         for idx, p in enumerate(paths_min):  # take every path
             for i, d in enumerate(p[1]):  # take every packet's delay
-                i_delay = d - self.schedule.get_min_path_delay(p[0])
-                b_delay = paths_real[idx][1][i] - d
+                i_delay = (d - self.schedule.get_min_path_delay(p[0]))/len(p[0])
+                b_delay = (paths_real[idx][1][i] - d)/len(p[0])
                 interf_delay.append(i_delay)
                 buffer_delay.append(b_delay)
 
@@ -291,7 +303,8 @@ class DelayLogProcessor(LogProcessor):
         locs, labels = plt.xticks()
         plt.setp(labels, rotation=90)
 
-if __name__ == '__main__':
+
+def plot_all_path_delays():
     # gl_save = True
     sched = Schedule(num_slots=gl_num_active_slots, num_off=gl_num_off_slots, num_serial=gl_num_serial_slots)
 
@@ -299,14 +312,24 @@ if __name__ == '__main__':
 
     folder = gl_dump_path + 'tdma/'
 
-    p = DelayLogProcessor(filename=folder+'no_interference.log', schedule=sched)
+    filename = folder+'no_interference.log'
 
-    int_delay0, buf_delay0 = p.plot_path_delay()
+    print('Creating a processor for %s' % filename)
+
+    p = DelayLogProcessor(filename=filename, schedule=sched)
+
+    r0, m0 = p.plot_path_delay()
+
+    int_delay0, buf_delay0 = p.print_delay(r0, m0)
     p.plot_links_heatmap()
 
-    p1 = DelayLogProcessor(filename=folder+'induced_interference.log', schedule=sched)
-    int_delay1, buf_delay1 = p1.plot_path_delay()
-    p1.plot_links_heatmap()
+    filename = folder+'induced_interference.log'
+
+    print('Creating a processor for %s' % filename)
+
+    p1 = DelayLogProcessor(filename=filename, schedule=sched)
+    r1, m1 = p1.plot_path_delay()
+    int_delay1, buf_delay1 = p1.print_delay(r1, m1)
 
     # comparison figure for different delays
     plt.figure()
@@ -329,4 +352,85 @@ if __name__ == '__main__':
 
     seaborn.plt.show()
     # plt.show()
+
+def plot_intercepting_path_delays():
+    # gl_save = True
+    sched = Schedule(num_slots=gl_num_active_slots, num_off=gl_num_off_slots, num_serial=gl_num_serial_slots)
+
+    sched.plot_min_delay_heatmap()
+
+    folder = gl_dump_path + 'tdma/'
+
+    filename = folder+'no_interference.log'
+
+    print('Creating a processor for %s' % filename)
+
+    pr = DelayLogProcessor(filename=filename, schedule=sched)
+
+    r0, m0 = pr.plot_path_delay()
+
+    filename = folder+'induced_interference.log'
+
+    print('Creating a processor for %s' % filename)
+
+    pr1 = DelayLogProcessor(filename=filename, schedule=sched)
+    r1, m1 = pr1.plot_path_delay()
+
+    # check which paths are intercepting
+
+    path_0_ids = []
+    path_1_ids = []
+
+    print('Intercepting paths...')
+
+    for i0, p0 in enumerate(r0):
+        for i1, p1 in enumerate(r1):
+            if p0[0] == p1[0]:
+                print(p0[0])
+                print(len(p0[1]))
+                print(len(p1[1]))
+                path_0_ids.append(i0)
+                path_1_ids.append(i1)
+
+    # reduce the arrays
+    r0 = [p for i, p in enumerate(r0) if (i in path_0_ids)]
+    m0 = [p for i, p in enumerate(m0) if (i in path_0_ids)]
+
+    r1 = [p for i, p in enumerate(r1) if (i in path_1_ids)]
+    m1 = [p for i, p in enumerate(m1) if (i in path_1_ids)]
+
+    # get the delays
+    plt.figure()
+
+    int_delay0, buf_delay0 = pr.print_delay(r0, m0)
+
+    plt.figure()
+
+    int_delay1, buf_delay1 = pr1.print_delay(r1, m1)
+
+    # comparison figure for different delays
+    plt.figure()
+
+    zipped = [int_delay0, int_delay1, buf_delay0, buf_delay1]
+
+    # print([np.mean(s) for s in zipped])
+    # print([mean_confidence_interval(s) for s in zipped])
+
+    plt.boxplot(zipped, showmeans=True)
+    plt.ylim((-0.1, 1.5))
+
+    x = range(1, 5)
+    plt.xticks(x,  ['int (no int)', 'int (int)', 'buf (no int)', 'buf (int)'])
+    locs, labels = plt.xticks()
+    plt.setp(labels, rotation=90)
+
+    plt.savefig(gl_image_path+'delay_sources.png',
+                        format='png', bbox='tight')
+
+    seaborn.plt.show()
+    # plt.show()
+
+
+if __name__ == '__main__':
+    plot_intercepting_path_delays()
 

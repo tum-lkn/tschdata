@@ -18,7 +18,7 @@ from topologyProcessor import TopologyLogProcessor
 
 gl_mote_range = range(1, 14)
 # gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
-gl_dump_path = os.getcwd() + '/../' + 'tdma/'
+gl_dump_path = os.getcwd() + '/../' + 'shared/'
 gl_image_path = os.getenv("HOME") + ''
 
 
