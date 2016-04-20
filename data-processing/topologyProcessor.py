@@ -95,9 +95,9 @@ class TopologyLogProcessor(LogProcessor):
 
 if __name__ == '__main__':
 
-    folder = gl_dump_path + 'tdma/no-interference-hopping/'
+    folder = gl_dump_path + 'tdma/'
 
-    p = TopologyLogProcessor(filename=folder+'no_interference_hopping.log')
+    p = TopologyLogProcessor(filename=folder+'no_interference.log')
 
     motes,node_occurrences=p.get_seen_nodes()
     links,link_occurrences=p.get_seen_links()

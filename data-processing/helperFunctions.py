@@ -132,6 +132,10 @@ class MeasurementPacket(TestbedPacket):
             return path + [1]
         else:
             return path
+    
+    def get_channels(self):
+        channels = [hop['freq'] for hop in self.hop_info]
+        return channels
 
 class TestTestbedPackets(unittest.TestCase):
     """
