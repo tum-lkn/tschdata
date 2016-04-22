@@ -60,8 +60,7 @@ class TopologyLogProcessor(LogProcessor):
 
         return seen_links,link_occurrences
 
-    def plot_colormap(self):
-        plt.figure()
+    def plot_colormap(self,axis=None):
         motes,node_occurrences=self.get_seen_nodes()
         links,link_occurrences=self.get_seen_links()
 
@@ -91,7 +90,11 @@ class TopologyLogProcessor(LogProcessor):
         #print(pos)
 
         colors = [data[2] for data in l]
-        nx.draw(G, pos, node_color='#A0CBE2', node_size=w_nodes ,edge_color=colors, width=4, edge_cmap=plt.cm.Blues, with_labels=True)
+        if axis is None:
+            nx.draw(G, pos, node_color='#A0CBE2', node_size=w_nodes ,edge_color=colors, width=4, edge_cmap=plt.cm.Blues, with_labels=True)
+        else:
+            nx.draw(G, pos, ax=axis ,node_color='#A0CBE2', node_size=w_nodes ,edge_color=colors, width=4, edge_cmap=plt.cm.Blues, with_labels=True)
+
 
 if __name__ == '__main__':
 

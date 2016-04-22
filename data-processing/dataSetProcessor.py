@@ -4,10 +4,11 @@ import os
 import matplotlib.pyplot as plt
 import networkx as nx
 import operator
+import numpy
 
 from logProcessor import LogProcessor
 from operator import itemgetter
-
+from topologyProcessor import TopologyLogProcessor
 
 gl_dump_path = os.getcwd() + '/../'
 gl_image_path = os.getenv("HOME") + ''
@@ -65,26 +66,53 @@ class DataSetProcessor(LogProcessor):
 
 if __name__ == '__main__':
 
-    folders= ('tdma/','shared/')
-    files= ('induced_interference.log','interference.log','no_interference.log')
+    folders= ('tdma','shared')
+    files= ('no_interference.log','interference.log','induced_interference.log')
 
     tot_packets=[]
     duration=[]
-    for folder in folders:
-        for file in files:
-            path = gl_dump_path + folder + file
+    tot_per_node_packets=[]
+    tot_per_channel_packets = []
+
+    # create subplots
+    f, axs = plt.subplots(2,3)
+
+    for i,folder in enumerate(folders):
+        for j,file in enumerate(files):
+            path = gl_dump_path + folder + '/' + file
             #print(path)
             d = DataSetProcessor(filename=path)
             tp=d.get_total_packets()
             nodes_occurrences=d.get_seen_nodes()
             channels_occurrences=d.get_seen_channels()
-            dur=d.get_total_duration()
+            dur=d.get_total_duration()/60 #in minutes
+
+            print("\n")
+            print(folder+'-'+file)
+
+            print("Total duration [min]:\n", dur)
+            print("Total number of packets:\n", tp)
+
+            #print("Nodes occurrences:\n",nodes_occurrences)
+            #print("Channels occurrences:\n", channels_occurrences)
+
+            tot_avg_node_occurr = numpy.mean(list(nodes_occurrences.values()))
+            tot_avg_channel_occurr = numpy.mean(list(channels_occurrences.values()))
+
+            print("Nodes occurrences (avg):\n", tot_avg_node_occurr)
+            print("Channels occurrences (avg):\n", tot_avg_channel_occurr)
 
             tot_packets.append(tp)
             duration.append(dur)
+            tot_per_channel_packets.append(tot_avg_channel_occurr)
+            tot_per_node_packets.append(tot_avg_node_occurr)
 
-            print(folder+file)
-            print("Total number of packets:\n", tp)
-            print("Total duration [s]:\n", dur)
-            print("Nodes occurrences:\n",nodes_occurrences)
-            print("Channels occurrences:\n", channels_occurrences)
+            p = TopologyLogProcessor(filename=path)
+            p.plot_colormap(axis=axs[i,j])
+
+    print(duration)
+    print(tot_per_node_packets)
+    print(tot_per_channel_packets)
+    print(tot_packets)
+
+    plt.show()
