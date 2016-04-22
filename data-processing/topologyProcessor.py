@@ -91,13 +91,13 @@ class TopologyLogProcessor(LogProcessor):
         #print(pos)
 
         colors = [data[2] for data in l]
-        nx.draw(G,pos, node_color='#A0CBE2', node_size=w_nodes ,edge_color=colors, width=4, edge_cmap=plt.cm.Blues, with_labels=True)
+        nx.draw(G, pos, node_color='#A0CBE2', node_size=w_nodes ,edge_color=colors, width=4, edge_cmap=plt.cm.Blues, with_labels=True)
 
 if __name__ == '__main__':
 
-    folder = gl_dump_path + 'tdma/'
+    folder = gl_dump_path
 
-    p = TopologyLogProcessor(filename=folder+'no_interference.log')
+    p = TopologyLogProcessor(filename=folder+'/no_interference.log')
 
     motes,node_occurrences=p.get_seen_nodes()
     links,link_occurrences=p.get_seen_links()
@@ -128,7 +128,15 @@ if __name__ == '__main__':
     #print(pos)
 
     colors = [data[2] for data in l]
-    nx.draw(G,pos, node_color='#A0CBE2', node_size=w_nodes ,edge_color=colors, width=4, edge_cmap=plt.cm.Blues, with_labels=True)
+
+    # create subplots
+    f, axs = plt.subplots(2, sharex=True)
+
+    # pass the axis as a parameter
+    nx.draw(G, pos, ax=axs[0], node_color='#A0CBE2', node_size=w_nodes ,edge_color=colors, width=4, edge_cmap=plt.cm.Blues, with_labels=True)
+
+    nx.draw(G, pos, ax=axs[1], node_color='#A0CBE2', node_size=w_nodes ,edge_color=colors, width=4, edge_cmap=plt.cm.Blues, with_labels=True)
+
     plt.savefig("images/edge_colormap.png")  # save as png
     plt.show()  # display
 

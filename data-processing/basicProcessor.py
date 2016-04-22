@@ -17,8 +17,8 @@ from helperFunctions import find_latest_dump
 from topologyProcessor import TopologyLogProcessor
 
 gl_mote_range = range(1, 14)
-# gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
-gl_dump_path = os.getcwd() + '/../' + 'shared/'
+gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
+# gl_dump_path = os.getcwd() + '/../' + 'shared/'
 gl_image_path = os.getenv("HOME") + ''
 
 
@@ -155,8 +155,8 @@ if __name__ == '__main__':
 
     folder = gl_dump_path
 
-    # filename = folder+find_latest_dump(folder)
-    filename=folder+'no_interference.log'
+    filename = folder+find_latest_dump(folder)
+    # filename=folder+'no_interference.log'
     print('Creating a processor for %s' % filename)
 
     p = BasicProcessor(filename=filename)
@@ -169,7 +169,9 @@ if __name__ == '__main__':
     p.plot_avg_hops()
     p.plot_retx()
 
+    plt.show()
 
+"""
     filename=folder+'induced_interference.log'
     print('Creating a processor for %s' % filename)
 
@@ -186,6 +188,8 @@ if __name__ == '__main__':
     print(['%.2f' % (y/x, ) for x, y in zip(means_without, means_with)])
 
     plt.show()
+"""
+
 
 
 
