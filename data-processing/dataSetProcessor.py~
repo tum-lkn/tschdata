@@ -8,7 +8,7 @@ import numpy
 
 from logProcessor import LogProcessor
 from operator import itemgetter
-from topologyProcessor import TopologyLogProcessor
+
 
 gl_dump_path = os.getcwd() + '/../'
 gl_image_path = os.getenv("HOME") + ''
@@ -66,20 +66,16 @@ class DataSetProcessor(LogProcessor):
 
 if __name__ == '__main__':
 
-    folders= ('tdma','shared')
+    folders= ('tdma/','shared/')
     files= ('no_interference.log','interference.log','induced_interference.log')
 
     tot_packets=[]
     duration=[]
     tot_per_node_packets=[]
     tot_per_channel_packets = []
-
-    # create subplots
-    f, axs = plt.subplots(2,3)
-
-    for i,folder in enumerate(folders):
-        for j,file in enumerate(files):
-            path = gl_dump_path + folder + '/' + file
+    for folder in folders:
+        for file in files:
+            path = gl_dump_path + folder + file
             #print(path)
             d = DataSetProcessor(filename=path)
             tp=d.get_total_packets()
@@ -88,7 +84,7 @@ if __name__ == '__main__':
             dur=d.get_total_duration()/60 #in minutes
 
             print("\n")
-            print(folder+'-'+file)
+            print(folder+file)
 
             print("Total duration [min]:\n", dur)
             print("Total number of packets:\n", tp)
@@ -106,13 +102,11 @@ if __name__ == '__main__':
             duration.append(dur)
             tot_per_channel_packets.append(tot_avg_channel_occurr)
             tot_per_node_packets.append(tot_avg_node_occurr)
-
-            p = TopologyLogProcessor(filename=path)
-            p.plot_colormap(axis=axs[i,j])
+            
+            p = TopologyLogProcessor(filename=folder+'no_interference.log')
+            p.plot_colormap()
 
     print(duration)
     print(tot_per_node_packets)
     print(tot_per_channel_packets)
     print(tot_packets)
-
-    plt.show()
