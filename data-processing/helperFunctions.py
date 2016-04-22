@@ -137,6 +137,10 @@ class MeasurementPacket(TestbedPacket):
         channels = [hop['freq'] for hop in self.hop_info]
         return channels
 
+    def get_rssi(self):
+        RSSIs = [hop['rssi'] for hop in self.hop_info]
+        return RSSIs
+
 class TestTestbedPackets(unittest.TestCase):
     """
     Unit tests
