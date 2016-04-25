@@ -3,7 +3,6 @@ __author__ = 'Samuele Zoppi'
 import os
 import matplotlib.pyplot as plt
 import networkx as nx
-import operator
 
 from logProcessor import LogProcessor
 from operator import itemgetter
@@ -97,41 +96,57 @@ class TopologyLogProcessor(LogProcessor):
         return
 
     def plot_multi_colormap(self, nodes, node_weights, links1, link_weights1, links2, link_weights2, axis=None):
+        """
 
-        G = nx.MultiGraph()
+        :param nodes:
+        :param node_weights:
+        :param links1: same as links2
+        :param link_weights1: occurences (non-normalized)
+        :param links2: same as links1
+        :param link_weights2: RSSIs (non-normalized)
+        :param axis:
+        :return:
+        """
+
+        G = nx.Graph()
 
         # print(nodes)
         G.add_nodes_from(nodes)
 
         nodes_occurrences = [(node, node_weights[idx]) for idx, node in enumerate(nodes)]
-        # print(nodes)
-        # print(G.nodes())
         s_nodes = sorted(nodes_occurrences, key=itemgetter(0))
-        # print(s_nodes)
         w_nodes = [weight[1] / 10 for weight in s_nodes]
-        # print(w_nodes)
 
+        # retrive occurences
         edges1 = [(link[0], link[1], link_weights1[idx]) for idx, link in enumerate(links1)]
         G.add_weighted_edges_from(edges1, key='edges1')
-
-        edges2 = [(link[0], link[1], link_weights2[idx]) for idx, link in enumerate(links2)]
-        G.add_weighted_edges_from(edges2, key='edges2')
-
-        # print(edges)
         l = list(G.edges_iter(data='weight'))
-        # print(l)
+        colors = [data[2]/100 for data in l]
 
-        pos = nx.circular_layout(G)
-        # pos=[ {x,x} for x in range(len(nodes))]
-        # print(pos)
+        # weird stuff happening... why do I write this?
+        G_temp = nx.Graph()
+        G_temp.add_nodes_from(nodes)
+        edges1 = [(link[0], link[1], link_weights2[idx]) for idx, link in enumerate(links1)]
+        G_temp.add_weighted_edges_from(edges1, key='edges1')
+        l = list(G_temp.edges_iter(data='weight'))
+        edgewidth = [data[2]/8 for data in l]
 
-        colors = [data[2] for data in l]
-        if axis is None:
-            nx.draw(G, pos, node_color='#A0CBE2', node_size=w_nodes, edge_color=colors, width=4,
-                    edge_cmap=plt.cm.Blues,with_labels=True)
-        else:
-            nx.draw(G, pos, ax=axis, node_color='#A0CBE2', node_size=w_nodes, edge_color=colors, width=4,
-                    edge_cmap=plt.cm.Blues, with_labels=True)
+        pos = {1: (4, 0), 2: (0, 2), 3: (4, 2), 4: (10, 2), 5: (10, 1), 6: (14, 2),
+               7: (18, 2), 8: (23, 2), 9: (-2, 2), 10: (18, 1.5), 11: (14, 0.5), 12: (4, 1), 13: (16, 2)}
+
+        # finally draw
+        # width - RSSI, color intensity - occurences
+        nx.draw_networkx_edges(G, pos, alpha=0.5, width=edgewidth,
+                               edge_color=colors, edge_cmap=plt.cm.Blues, edge_vmin=-50, edge_vmax=max(colors),
+                                with_labels=True)
+
+        nx.draw_networkx_nodes(G, pos, node_color='#A0CBE2', node_size=w_nodes, with_labels=True)
+        # if axis is None:
+        #     nx.draw(G, pos, node_color='#A0CBE2', node_size=w_nodes, edge_color=colors, width=4,
+        #            edge_cmap=plt.cm.Blues,with_labels=True)
+        # else:
+        #     nx.draw(G, pos, ax=axis, node_color='#A0CBE2', node_size=w_nodes, edge_color=colors, width=4,
+        #             edge_cmap=plt.cm.Blues, with_labels=True)
 
         #write_dot(G, 'multi.dot')
 
