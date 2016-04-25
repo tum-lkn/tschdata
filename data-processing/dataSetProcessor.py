@@ -118,7 +118,8 @@ if __name__ == '__main__':
     for i,folder in enumerate(folders):
         for j,file in enumerate(files):
             path = gl_dump_path + folder + '/' + file
-            #print(path)
+            #path = gl_dump_path + 'tdma' + '/' + 'no_interference.log'
+            print(path)
 
             d = DataSetProcessor(filename=path)
 
@@ -131,7 +132,7 @@ if __name__ == '__main__':
 
 
             print("\n")
-            print(folder+'-'+file)
+            #print(folder+'-'+file)
 
             print("Total duration [min]:\n", dur)
             print("Total number of packets:\n", tp)
@@ -151,7 +152,11 @@ if __name__ == '__main__':
 
             p = TopologyLogProcessor(filename=path)
 
-            p.plot_colormap(nodes=list(nodes_occurrences.keys()),node_weights=list(nodes_occurrences.values()),links=links,link_weights=link_occurrences ,axis=axs[i,j])
+            p.plot_colormap(nodes=list(nodes_occurrences.keys()),node_weights=list(nodes_occurrences.values())
+            ,links=links,link_weights=link_occurrences ,axis=axs[i,j])
+            # p.plot_multi_colormap(nodes=list(nodes_occurrences.keys()),
+            #                       node_weights=list(nodes_occurrences.values()),links1=links,
+            #                       link_weights1=link_occurrences,links2=links,link_weights2=link_rssis)
 
     print(duration)
     print(tot_per_node_packets)

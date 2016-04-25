@@ -7,6 +7,7 @@ import operator
 
 from logProcessor import LogProcessor
 from operator import itemgetter
+from networkx.drawing.nx_agraph import write_dot
 #from dataSetProcessor import DataSetProcessor
 
 
@@ -92,6 +93,47 @@ class TopologyLogProcessor(LogProcessor):
             nx.draw(G, pos, node_color='#A0CBE2', node_size=w_nodes ,edge_color=colors, width=4, edge_cmap=plt.cm.Blues, with_labels=True)
         else:
             nx.draw(G, pos, ax=axis ,node_color='#A0CBE2', node_size=w_nodes ,edge_color=colors, width=4, edge_cmap=plt.cm.Blues, with_labels=True)
+
+        return
+
+    def plot_multi_colormap(self, nodes, node_weights, links1, link_weights1, links2, link_weights2, axis=None):
+
+        G = nx.MultiGraph()
+
+        # print(nodes)
+        G.add_nodes_from(nodes)
+
+        nodes_occurrences = [(node, node_weights[idx]) for idx, node in enumerate(nodes)]
+        # print(nodes)
+        # print(G.nodes())
+        s_nodes = sorted(nodes_occurrences, key=itemgetter(0))
+        # print(s_nodes)
+        w_nodes = [weight[1] / 10 for weight in s_nodes]
+        # print(w_nodes)
+
+        edges1 = [(link[0], link[1], link_weights1[idx]) for idx, link in enumerate(links1)]
+        G.add_weighted_edges_from(edges1, key='edges1')
+
+        edges2 = [(link[0], link[1], link_weights2[idx]) for idx, link in enumerate(links2)]
+        G.add_weighted_edges_from(edges2, key='edges2')
+
+        # print(edges)
+        l = list(G.edges_iter(data='weight'))
+        # print(l)
+
+        pos = nx.circular_layout(G)
+        # pos=[ {x,x} for x in range(len(nodes))]
+        # print(pos)
+
+        colors = [data[2] for data in l]
+        if axis is None:
+            nx.draw(G, pos, node_color='#A0CBE2', node_size=w_nodes, edge_color=colors, width=4,
+                    edge_cmap=plt.cm.Blues,with_labels=True)
+        else:
+            nx.draw(G, pos, ax=axis, node_color='#A0CBE2', node_size=w_nodes, edge_color=colors, width=4,
+                    edge_cmap=plt.cm.Blues, with_labels=True)
+
+        #write_dot(G, 'multi.dot')
 
         return
 
