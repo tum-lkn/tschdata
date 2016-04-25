@@ -151,6 +151,10 @@ class MeasurementPacket(TestbedPacket):
         else:
             return 17 - (self.asn_first % 16) + asn_tx
 
+    def get_rssi(self):
+        RSSIs = [hop['rssi'] for hop in self.hop_info]
+        return RSSIs
+
 class TestTestbedPackets(unittest.TestCase):
     """
     Unit tests
