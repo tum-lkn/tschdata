@@ -25,7 +25,7 @@ gl_save = False
 
 class Schedule:
 
-    def __init__(self, num_slots, num_off, num_serial, t_slot=0.015):
+    def __init__(self, num_slots, num_off, num_serial, t_slot=0.015, shared=False):
         """
         Assumption: every active slot corresponds to a mote with addr = slot#
         :param num_slots: number of active slots
@@ -40,6 +40,8 @@ class Schedule:
         self.schedule = [i for i in range(1, num_slots+1)]
         self.schedule += [0 for i in range(num_off+num_serial)]
         self.t_slot = t_slot  # in s
+
+        self.shared = shared
 
     @property
     def frame_length(self):
@@ -58,6 +60,10 @@ class Schedule:
             return self.frame_length - ((start - end)*self.t_slot)
 
     def get_min_delay_heatmap(self):
+        """
+        Get data to plot minimum (link) delay heatmap for every link (TDMA)
+        :return:
+        """
         adj_matrix = []
         for i in range(self.num_slots):
             adj_matrix.append([self.get_min_link_delay(i+1, j+1) for j in range(self.num_slots)])
@@ -65,6 +71,10 @@ class Schedule:
         return adj_matrix
 
     def plot_min_delay_heatmap(self):
+        """
+        Plot minimum link delays for the topology
+        :return:
+        """
         data = self.get_min_delay_heatmap()
         plt.figure()
         seaborn.heatmap(data=data, xticklabels=[i for i in gl_mote_range], yticklabels=[i for i in gl_mote_range])
@@ -81,13 +91,14 @@ class Schedule:
         delay = 0.0
         for idx, hop in enumerate(path):
             if idx == 0:
-                # delay += 0.5*self.frame_length
-                delay += 0.0
+                # consider first hop as half a frame-length
+                delay += 0.5*self.frame_length
+                # delay += 0.0
             else:
                 delay += self.get_min_link_delay(hop-1, hop)
         return delay
 
-    def get_min_packet_delay(self, pkt):
+    def get_min_packet_delay(self, pkt, shared=False):
         '''
         Get minimum delay along the path
         :param path: list of (mote, retx)
@@ -97,8 +108,8 @@ class Schedule:
         for idx, hop in enumerate(pkt.hop_info):
             if idx == 0:
                 # first hop - consider half delay for the first retransmission
-                # delay += 0.5*self.frame_length + self.frame_length*(3 - hop['retx'])
-                delay += self.frame_length*(3 - hop['retx'])
+                delay += 0.5*self.frame_length + self.frame_length*(3 - hop['retx'])
+                # delay += self.frame_length*(3 - hop['retx'])
             else:
                 delay += (self.get_min_link_delay(pkt.hop_info[idx-1]['addr'], hop['addr']) +
                          self.frame_length*(3 - hop['retx']))

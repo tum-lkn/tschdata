@@ -86,7 +86,7 @@ class TopologyLogProcessor(LogProcessor):
 
 
         pos = nx.circular_layout(G)
-        #pos=[ {x,x} for x in range(len(nodes))]
+        # pos=[ {x,x} for x in range(len(nodes))]
         #print(pos)
 
         colors = [data[2] for data in l]

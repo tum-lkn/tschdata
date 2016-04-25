@@ -16,6 +16,9 @@ from datetime import datetime, timedelta
 
 gl_t_slot = 0.015  # in seconds
 
+gl_hopping_sequence = [5,9,12,7,15,4,14,11,8,0,1,2,13,3,6,10]
+gl_hopping_sequence = [f+11 for f in gl_hopping_sequence]
+
 class TestbedPacket:
 
     @classmethod
@@ -136,6 +139,17 @@ class MeasurementPacket(TestbedPacket):
     def get_channels(self):
         channels = [hop['freq'] for hop in self.hop_info]
         return channels
+
+    def get_first_hop_waiting_time(self):
+        first_hop_info = self.hop_info[-1]
+        assert (first_hop_info['addr'] != 0)
+        ch = first_hop_info['freq']
+        asn_tx = gl_hopping_sequence.index(ch)-1
+        time = asn_tx - (self.asn_first % 16)
+        if time >= 0:
+            return time
+        else:
+            return 17 - (self.asn_first % 16) + asn_tx
 
 class TestTestbedPackets(unittest.TestCase):
     """

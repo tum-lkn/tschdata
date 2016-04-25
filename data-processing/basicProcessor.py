@@ -11,15 +11,27 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 import datetime
+from pylab import plot, show, savefig, xlim, figure, \
+                hold, ylim, legend, boxplot, setp, axes, grid
 
 from logProcessor import LogProcessor
 from helperFunctions import find_latest_dump
 from topologyProcessor import TopologyLogProcessor
-import seaborn
+
+
+def set_box_plot(bp):
+    for b in bp['boxes']:
+        setp(b, color='blue', linewidth=1.5)
+    for c in bp['caps']:
+        setp(c, color='black', linewidth=1.5)
+    for w in bp['whiskers']:
+        setp(w, color='blue', linewidth=1.5)
+    for m in bp['medians']:
+        setp(w, color='red', linewidth=1.5)
 
 
 from matplotlib import rcParams
-rcParams.update({'figure.autolayout': True})
+rcParams.update({'figure.autolayout': True, 'font.size': 14, 'font.family': 'serif', 'font.sans-serif': ['Helvetica']})
 
 gl_mote_range = range(1, 14)
 gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
@@ -91,7 +103,7 @@ class BasicProcessor(LogProcessor):
             delays.append(self.get_delays(addr))
         plt.boxplot(delays, showmeans=True)
 
-        plt.ylim((0, 15))
+        plt.ylim((0, 2))
 
         plt.ylabel('delay, s')
         plt.xlabel('mote #')
@@ -194,11 +206,20 @@ def plot_all_delays():
 
     d13 = p.get_all_delays()
 
+    # --- file four --- #
+    filename = folder+'high_load.log'
+
+    print('Creating a processor for %s' % filename)
+
+    p = BasicProcessor(filename=filename)
+
+    d14 = p.get_all_delays()
+
 
     # --- folder two --- #
     folder = os.getcwd() + '/../' + 'shared/'
 
-        # --- file one --- #
+    # --- file one --- #
     filename = folder+'no_interference.log'
 
     print('Creating a processor for %s' % filename)
@@ -225,15 +246,32 @@ def plot_all_delays():
 
     d23 = p.get_all_delays()
 
-    plt.figure()
+    # --- file four --- #
+    filename = folder+'high_load.log'
 
-    plt.boxplot([d11, d12, d13, d21, d22, d23], showmeans=True, showfliers=False)
+    print('Creating a processor for %s' % filename)
 
-    plt.ylim((0, 2))
+    p = BasicProcessor(filename=filename)
+
+    d24 = p.get_all_delays()
+
+    # --- plotting --- #
+
+    figure(figsize=(7.5,    4))
+
+    bp = boxplot([d11, d12, d13, d14, d21, d22, d23, d24], showmeans=True, showfliers=False)
+
+    ylim((0, 2.5))
+    grid(True)
+
+    plt.xlabel('Data set')
+    plt.ylabel('Delay, s')
+
+    set_box_plot(bp)
 
     # seaborn.plt.show()
-    seaborn.plt.savefig('images/all_delay.pdf', format='pdf', bbox='tight')
-    seaborn.plt.show()
+    savefig('../../sgpaper/pics/all_delay.pdf', format='pdf', bbox='tight')
+    show()
 
 
 
@@ -246,41 +284,21 @@ if __name__ == '__main__':
     # if len(sys.argv) != 2:
     #    exit("Usage: %s dumpfile" % sys.argv[0])
 
-    folder = os.getcwd() + '/../' + 'tdma/'
+    folder = gl_dump_path # os.getcwd() + '/../' + 'tdma/'
 
-    filename = folder+'no_interference.log'
-    # filename=folder+'no_interference.log'
+    filename = gl_dump_path + find_latest_dump(gl_dump_path)
+
     print('Creating a processor for %s' % filename)
     p = BasicProcessor(filename=filename)
     print(p.find_motes_in_action())
-    # p.plot_num_packets()
-    # p.plot_timeline()
-    _ = p.plot_delays()
-    # p.plot_avg_hops()
-    # p.plot_retx()
-
-    folder = os.getcwd() + '/../' + 'tdma/'
-
-
-
-    filename = os.getcwd() + '/../' + 'tdma/' + 'induced_interference.log'
-    print('Creating a processor for %s' % filename)
-
-    p = BasicProcessor(filename=filename)
-
-    print(p.find_motes_in_action())l
-
     p.plot_num_packets()
     p.plot_timeline()
-    means_with = p.plot_delays()
+    _ = p.plot_delays()
     p.plot_avg_hops()
     p.plot_retx()
 
-    # print(['%.2f' % (y/x, ) for x, y in zip(means_without, means_with)])
-
     plt.show()
-
-    """
+"""
 
 
 
