@@ -131,16 +131,31 @@ class TopologyLogProcessor(LogProcessor):
         l = list(G_temp.edges_iter(data='weight'))
         edgewidth = [data[2]/8 for data in l]
 
-        pos = {1: (4, 0), 2: (0, 2), 3: (4, 2), 4: (10, 2), 5: (10, 1), 6: (14, 2),
-               7: (18, 2), 8: (23, 2), 9: (-2, 2), 10: (18, 1.5), 11: (14, 0.5), 12: (4, 1), 13: (16, 2)}
+        pos = {1: (67, 80), 2: (42, 33), 3: (56, 33), 4: (85, 33), 5: (95, 55), 6: (112, 33),
+               7: (130, 55), 8: (154, 43), 9: (28, 33), 10: (137, 33), 11: (118, 60), 12: (67, 60), 13: (125, 33)}
 
         # finally draw
         # width - RSSI, color intensity - occurences
-        nx.draw_networkx_edges(G, pos, alpha=0.5, width=edgewidth,
-                               edge_color=colors, edge_cmap=plt.cm.Blues, edge_vmin=-50, edge_vmax=max(colors),
-                                with_labels=True)
+        if axis is None:
+            nx.draw_networkx_edges(G, pos, alpha=0.5, width=edgewidth,
+                                   edge_color=colors, edge_cmap=plt.cm.Blues, edge_vmin=-50, edge_vmax=max(colors),
+                                   with_labels=True)
 
-        nx.draw_networkx_nodes(G, pos, node_color='#A0CBE2', node_size=w_nodes, with_labels=True)
+            nx.draw_networkx_nodes(G, pos, node_color='#A0CBE2', node_size=w_nodes, with_labels=True)
+        else:
+            nx.draw_networkx_edges(G, pos, ax=axis, alpha=0.5, width=edgewidth,
+                                   edge_color=colors, edge_cmap=plt.cm.Blues, edge_vmin=-50, edge_vmax=max(colors),
+                                   with_labels=True)
+
+            nx.draw_networkx_nodes(G, pos, ax=axis, node_color='#A0CBE2', node_size=w_nodes, with_labels=True)
+
+        labels = {}
+        for i in range(1,14):
+            labels[i]=i
+
+        nx.draw_networkx_labels(G, pos, labels, font_size=12)
+
+        plt.axis('off')
         # if axis is None:
         #     nx.draw(G, pos, node_color='#A0CBE2', node_size=w_nodes, edge_color=colors, width=4,
         #            edge_cmap=plt.cm.Blues,with_labels=True)

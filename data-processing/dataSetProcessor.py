@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import operator
 import numpy
+from scipy.misc import imread
+import matplotlib.cbook as cbook
 
 from logProcessor import LogProcessor
 from operator import itemgetter
@@ -113,7 +115,7 @@ if __name__ == '__main__':
     tot_per_channel_packets = []
 
     # create subplots
-    # f, axs = plt.subplots(2,3)
+    f, axs = plt.subplots(2,3)
 
     for i,folder in enumerate(folders):
         for j,file in enumerate(files):
@@ -156,16 +158,23 @@ if __name__ == '__main__':
             # p.plot_colormap(nodes=list(nodes_occurrences.keys()),node_weights=list(nodes_occurrences.values())
             # ,links=links,link_weights=link_occurrences ,axis=axs[i,j])
 
-            plt.figure(figsize=(15, 4))
+            #plt.figure(figsize=(15, 4))
+            plt.figure()
+            datafile = cbook.get_sample_data(os.getcwd()+"/images/LKNmap.jpg")
+            img = imread(datafile)
+            plt.imshow(img)#, zorder=0, extent=[0, 24.0, -1, 2.0])
 
             p.plot_multi_colormap(nodes=list(nodes_occurrences.keys()),
                                    node_weights=list(nodes_occurrences.values()),links1=links,
                                    link_weights1=link_occurrences,links2=links,link_weights2=link_rssis)
+            break
+        break
 
     print(duration)
     print(tot_per_node_packets)
     print(tot_per_channel_packets)
     print(tot_packets)
 
+    plt.tight_layout()
     plt.savefig("images/edge_occurrences_colormap.png")
     plt.show()
