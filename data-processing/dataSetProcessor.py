@@ -116,7 +116,9 @@ if __name__ == '__main__':
 
     # create subplots
     f, axs = plt.subplots(2,3)
+    f.subplots_adjust(hspace=0)
 
+    k=1;
     for i,folder in enumerate(folders):
         for j,file in enumerate(files):
 
@@ -135,7 +137,7 @@ if __name__ == '__main__':
 
 
             print("\n")
-            #print(folder+'-'+file)
+            print(folder+'-'+file)
 
             print("Total duration [min]:\n", dur)
             print("Total number of packets:\n", tp)
@@ -159,16 +161,19 @@ if __name__ == '__main__':
             # ,links=links,link_weights=link_occurrences ,axis=axs[i,j])
 
             #plt.figure(figsize=(15, 4))
-            plt.figure()
+            #plt.figure()
             datafile = cbook.get_sample_data(os.getcwd()+"/images/LKNmap.jpg")
+            ax=plt.subplot(2,3,k)
+            ax.set_title(folder+'-'+file)
+            k += 1
             img = imread(datafile)
             plt.imshow(img)#, zorder=0, extent=[0, 24.0, -1, 2.0])
 
             p.plot_multi_colormap(nodes=list(nodes_occurrences.keys()),
                                    node_weights=list(nodes_occurrences.values()),links1=links,
                                    link_weights1=link_occurrences,links2=links,link_weights2=link_rssis)
-            break
-        break
+            #break
+        #break
 
     print(duration)
     print(tot_per_node_packets)
@@ -176,5 +181,5 @@ if __name__ == '__main__':
     print(tot_packets)
 
     plt.tight_layout()
-    plt.savefig("images/edge_occurrences_colormap.png")
+    plt.savefig("images/all_topologies_colormap.png")
     plt.show()
