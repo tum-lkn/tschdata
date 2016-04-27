@@ -107,7 +107,7 @@ class DataSetProcessor(LogProcessor):
 if __name__ == '__main__':
 
     folders= ('tdma','shared')
-    files= ('no_interference.log','interference.log','induced_interference.log')
+    files= ('no_interference','interference','induced_interference')
 
     tot_packets=[]
     duration=[]
@@ -115,15 +115,14 @@ if __name__ == '__main__':
     tot_per_channel_packets = []
 
     # create subplots
-    f, axs = plt.subplots(2,3)
-    f.subplots_adjust(hspace=0)
+    # f, axs = plt.subplots(2,3)
+    # f.subplots_adjust(hspace=0)
 
     k=1;
     for i,folder in enumerate(folders):
         for j,file in enumerate(files):
 
-            path = gl_dump_path + folder + '/' + file
-            #path = gl_dump_path + 'tdma' + '/' + 'no_interference.log'
+            path = gl_dump_path + folder + '/' + file + '.log'
             print(path)
 
             d = DataSetProcessor(filename=path)
@@ -161,10 +160,16 @@ if __name__ == '__main__':
             # ,links=links,link_weights=link_occurrences ,axis=axs[i,j])
 
             #plt.figure(figsize=(15, 4))
-            #plt.figure()
-            datafile = cbook.get_sample_data(os.getcwd()+"/images/LKNmap.jpg")
-            ax=plt.subplot(2,3,k)
-            ax.set_title(folder+'-'+file)
+            fig=plt.figure()
+            # if folder is 'tdma':
+            #     fig.suptitle(folder.upper() + '-' + file)
+            # else:
+            #     fig.suptitle(folder.title() + '-' + file)
+
+            datafile = cbook.get_sample_data(os.getcwd()+"/images/LKN_plan_v0.2.jpg")
+
+            #ax=plt.subplot(2,3,k)
+            #ax.set_title((folder+'-'+file).title())
             k += 1
             img = imread(datafile)
             plt.imshow(img)#, zorder=0, extent=[0, 24.0, -1, 2.0])
@@ -172,6 +177,9 @@ if __name__ == '__main__':
             p.plot_multi_colormap(nodes=list(nodes_occurrences.keys()),
                                    node_weights=list(nodes_occurrences.values()),links1=links,
                                    link_weights1=link_occurrences,links2=links,link_weights2=link_rssis)
+            plt.tight_layout()
+            plt.savefig("images/topology_colormap_"+folder+'_'+file+"_notitle_visiobgrnd.png")
+
             #break
         #break
 
@@ -180,6 +188,6 @@ if __name__ == '__main__':
     print(tot_per_channel_packets)
     print(tot_packets)
 
-    plt.tight_layout()
-    plt.savefig("images/all_topologies_colormap.png")
+    # plt.tight_layout()
+    # plt.savefig("images/all_topologies_colormap.png")
     plt.show()

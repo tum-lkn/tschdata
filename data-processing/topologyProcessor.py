@@ -131,8 +131,13 @@ class TopologyLogProcessor(LogProcessor):
         l = list(G_temp.edges_iter(data='weight'))
         edgewidth = [data[2]/8 for data in l]
 
-        pos = {1: (67, 80), 2: (42, 33), 3: (56, 33), 4: (85, 33), 5: (95, 55), 6: (112, 33),
-               7: (130, 55), 8: (154, 43), 9: (28, 33), 10: (137, 33), 11: (118, 60), 12: (67, 60), 13: (125, 33)}
+        # pos = {1: (335, 630), 2: (220, 90), 3: (350, 90), 4: (590, 90), 5: (590, 590), 6: (710, 90),
+        #        7: (840, 590), 8: (975, 590), 9: (90, 50), 10: (970, 90), 11: (710, 590), 12: (335, 530),
+        #        13: (840, 90)}
+
+        pos = {1: (330, 690), 2: (175, 175), 3: (300, 80), 4: (550, 175), 5: (590, 570), 6: (650, 80),
+               7: (930, 175), 8: (1050, 175), 9: (65, 80), 10: (930, 80), 11: (830, 630), 12: (330, 570),
+               13: (780, 80)}
 
         # finally draw
         # width - RSSI, color intensity - occurences
@@ -156,14 +161,6 @@ class TopologyLogProcessor(LogProcessor):
         nx.draw_networkx_labels(G, pos, labels, font_size=12)
 
         plt.axis('off')
-        # if axis is None:
-        #     nx.draw(G, pos, node_color='#A0CBE2', node_size=w_nodes, edge_color=colors, width=4,
-        #            edge_cmap=plt.cm.Blues,with_labels=True)
-        # else:
-        #     nx.draw(G, pos, ax=axis, node_color='#A0CBE2', node_size=w_nodes, edge_color=colors, width=4,
-        #             edge_cmap=plt.cm.Blues, with_labels=True)
-
-        #write_dot(G, 'multi.dot')
 
         return
 
