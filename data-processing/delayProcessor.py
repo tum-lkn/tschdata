@@ -1,8 +1,8 @@
 __author__ = 'Mikhail Vilgelm'
 
 import os, re
-import ast
-import seaborn
+# import ast
+# import seaborn
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -10,7 +10,7 @@ from matplotlib import rcParams
 rcParams.update({'figure.autolayout': True})
 
 from logProcessor import LogProcessor
-from helperFunctions import mean_confidence_interval
+# from helperFunctions import mean_confidence_interval
 
 gl_num_active_slots = 13
 gl_num_off_slots = 2
@@ -119,11 +119,16 @@ class Schedule:
 
         return delay
 
+gl_default_schedule = Schedule(num_slots=gl_num_active_slots, num_off=gl_num_off_slots, num_serial=gl_num_serial_slots)
+
 
 class DelayLogProcessor(LogProcessor):
 
     def __init__(self, **kwargs):
-        self.schedule = kwargs.pop('schedule')
+        if 'schedule' in kwargs.keys():
+            self.schedule = kwargs.pop('schedule')
+        else:
+            self.schedule = gl_default_schedule
         super().__init__(**kwargs)
 
     def get_all_paths_w_delay(self):
@@ -135,7 +140,7 @@ class DelayLogProcessor(LogProcessor):
         paths_min = []
 
         for pkt in self.packets:
-            if pkt.delay>=0:
+            if pkt.delay >= 0:
                 path = pkt.get_path(full=False)
                 if not (str(path) in seen_paths):
                     paths_real.append((path, [pkt.delay]))
