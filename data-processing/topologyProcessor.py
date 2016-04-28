@@ -131,24 +131,36 @@ class TopologyLogProcessor(LogProcessor):
         l = list(G_temp.edges_iter(data='weight'))
         edgewidth = [data[2]/8 for data in l]
 
-        pos = {1: (4, 0), 2: (0, 2), 3: (4, 2), 4: (10, 2), 5: (10, 1), 6: (14, 2),
-               7: (18, 2), 8: (23, 2), 9: (-2, 2), 10: (18, 1.5), 11: (14, 0.5), 12: (4, 1), 13: (16, 2)}
+        # pos = {1: (335, 630), 2: (220, 90), 3: (350, 90), 4: (590, 90), 5: (590, 590), 6: (710, 90),
+        #        7: (840, 590), 8: (975, 590), 9: (90, 50), 10: (970, 90), 11: (710, 590), 12: (335, 530),
+        #        13: (840, 90)}
+
+        pos = {1: (330, 690), 2: (175, 175), 3: (300, 80), 4: (550, 175), 5: (590, 570), 6: (650, 80),
+               7: (930, 175), 8: (1050, 175), 9: (65, 80), 10: (930, 80), 11: (830, 630), 12: (330, 570),
+               13: (780, 80)}
 
         # finally draw
         # width - RSSI, color intensity - occurences
-        nx.draw_networkx_edges(G, pos, alpha=0.5, width=edgewidth,
-                               edge_color=colors, edge_cmap=plt.cm.Blues, edge_vmin=-50, edge_vmax=max(colors),
-                                with_labels=True)
+        if axis is None:
+            nx.draw_networkx_edges(G, pos, alpha=0.5, width=edgewidth,
+                                   edge_color=colors, edge_cmap=plt.cm.Blues, edge_vmin=-50, edge_vmax=max(colors),
+                                   with_labels=True)
 
-        nx.draw_networkx_nodes(G, pos, node_color='#A0CBE2', node_size=w_nodes, with_labels=True)
-        # if axis is None:
-        #     nx.draw(G, pos, node_color='#A0CBE2', node_size=w_nodes, edge_color=colors, width=4,
-        #            edge_cmap=plt.cm.Blues,with_labels=True)
-        # else:
-        #     nx.draw(G, pos, ax=axis, node_color='#A0CBE2', node_size=w_nodes, edge_color=colors, width=4,
-        #             edge_cmap=plt.cm.Blues, with_labels=True)
+            nx.draw_networkx_nodes(G, pos, node_color='#A0CBE2', node_size=w_nodes, with_labels=True)
+        else:
+            nx.draw_networkx_edges(G, pos, ax=axis, alpha=0.5, width=edgewidth,
+                                   edge_color=colors, edge_cmap=plt.cm.Blues, edge_vmin=-50, edge_vmax=max(colors),
+                                   with_labels=True)
 
-        #write_dot(G, 'multi.dot')
+            nx.draw_networkx_nodes(G, pos, ax=axis, node_color='#A0CBE2', node_size=w_nodes, with_labels=True)
+
+        labels = {}
+        for i in range(1,14):
+            labels[i]=i
+
+        nx.draw_networkx_labels(G, pos, labels, font_size=12)
+
+        plt.axis('off')
 
         return
 
