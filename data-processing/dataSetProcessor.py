@@ -107,7 +107,8 @@ class DataSetProcessor(LogProcessor):
 if __name__ == '__main__':
 
     folders= ('tdma','shared')
-    files= ('no_interference','interference','induced_interference')
+    files= ('no_interference','interference','induced_interference','high_load')
+    files= ('no_interference','interference','induced_interference','high_load')
 
     tot_packets=[]
     duration=[]
