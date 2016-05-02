@@ -8,9 +8,11 @@ __author__ = 'Mikhail Vilgelm'
 
 import os
 import matplotlib.pyplot as plt
+from os.path import isfile, join
 import numpy as np
 import sys
 import datetime
+from matplotlib import gridspec
 from pylab import plot, show, savefig, xlim, figure, \
                 hold, ylim, legend, boxplot, setp, axes, grid
 
@@ -27,7 +29,17 @@ def set_box_plot(bp):
     for w in bp['whiskers']:
         setp(w, color='blue', linewidth=1.5)
     for m in bp['medians']:
-        setp(w, color='red', linewidth=1.5)
+        setp(m, color='red', linewidth=1.5)
+
+def set_box_plot_even(bp):
+    for b in bp['boxes']:
+        setp(b, color='blue', linewidth=1.5)
+    for c in bp['caps']:
+        setp(c, color='black', linewidth=1.5)
+    for w in bp['whiskers']:
+        setp(w, color='blue', linewidth=1.5)
+    for m in bp['medians']:
+        setp(m, color='red', linewidth=1.5)
 
 
 from matplotlib import rcParams
@@ -112,14 +124,14 @@ class BasicProcessor(LogProcessor):
         # return means
         return [np.mean(d) for d in delays if len(d) > 0]
 
-    def get_all_delays(self):
+    def get_all_delays(self, motes=gl_mote_range, normalized=False):
         """
 
         :return:
         """
         delays = []
-        for addr in gl_mote_range:
-            delays += self.get_delays(addr)
+        for addr in motes:
+            delays += self.get_delays(addr, normalized)
 
         # return means
         return delays
@@ -175,91 +187,113 @@ class BasicProcessor(LogProcessor):
             pass
 
 
+def plot_normalized_delay_per_application():
+    """
+    Plot delay for scenario / application: normalized per hop
+    :return:
+    """
 
-def plot_all_delays():
+    # --- folder one --- #
     folder = os.getcwd() + '/../' + 'tdma/'
 
-    # --- file one --- #
-    filename = folder+'no_interference.log'
+    files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
+    files = sorted(files)
 
-    print('Creating a processor for %s' % filename)
+    d_tdma = []
 
-    p = BasicProcessor(filename=filename)
 
-    d11 = p.get_all_delays()
-
-    # --- file two --- #
-    filename = folder+'interference.log'
-
-    print('Creating a processor for %s' % filename)
-
-    p = BasicProcessor(filename=filename)
-
-    d12 = p.get_all_delays()
-
-    # --- file three --- #
-    filename = folder+'induced_interference.log'
-
-    print('Creating a processor for %s' % filename)
-
-    p = BasicProcessor(filename=filename)
-
-    d13 = p.get_all_delays()
-
-    # --- file four --- #
-    filename = folder+'high_load.log'
-
-    print('Creating a processor for %s' % filename)
-
-    p = BasicProcessor(filename=filename)
-
-    d14 = p.get_all_delays()
-
+    for filename in files:
+        print('Creating a processor for %s' % filename)
+        p = BasicProcessor(filename=folder+filename)
+        d_tdma.append(p.get_all_delays(motes=[2, 3, 4, 5, 6, 7, 8], normalized=True))
+        d_tdma.append(p.get_all_delays(motes=[9, 10, 11], normalized=True))
 
     # --- folder two --- #
     folder = os.getcwd() + '/../' + 'shared/'
 
-    # --- file one --- #
-    filename = folder+'no_interference.log'
+    files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
+    files = sorted(files)
 
-    print('Creating a processor for %s' % filename)
+    d_shared = []
 
-    p = BasicProcessor(filename=filename)
+    for filename in files:
+        print('Creating a processor for %s' % filename)
+        p = BasicProcessor(filename=folder+filename)
+        d_shared.append(p.get_all_delays(motes=[2, 3, 4, 5, 6, 7, 8], normalized=True))
+        d_shared.append(p.get_all_delays(motes=[9, 10, 11], normalized=True))
 
-    d21 = p.get_all_delays()
+    # --- folder two --- #
 
-    # --- file two --- #
-    filename = folder+'interference.log'
+    fig = plt.figure(figsize=(7.5, 10))
+    gs = gridspec.GridSpec(2, 1, height_ratios=[1, 1])
 
-    print('Creating a processor for %s' % filename)
+    ax0 = fig.add_subplot(gs[0])
+    bp_tdma = ax0.boxplot(d_tdma, showmeans=True, showfliers=False)
 
-    p = BasicProcessor(filename=filename)
+    x_axis = list(range(9))
+    labels = ['', 'I(P)', 'I(B)', 'II(P)', 'II(B)', 'III(P)', 'III(B)', 'IV(P)', 'IV(B)']
+    plt.xticks(x_axis, labels)
 
-    d22 = p.get_all_delays()
+    # ylim((0, 4))
+    grid(True)
 
-    # --- file three --- #
-    filename = folder+'induced_interference.log'
+    # plt.xlabel('Data set')
+    plt.ylabel('Delay, s')
 
-    print('Creating a processor for %s' % filename)
+    set_box_plot(bp_tdma)
 
-    p = BasicProcessor(filename=filename)
+    ax1 = fig.add_subplot(gs[1])
+    bp_shared = ax1.boxplot(d_shared, showmeans=True, showfliers=False)
 
-    d23 = p.get_all_delays()
+    # ylim((0, 0.2))
+    grid(True)
 
-    # --- file four --- #
-    filename = folder+'high_load.log'
+    # plt.xlabel('Data set')
+    labels = ['', 'V(P)', 'V(B)', 'VI(P)', 'VI(B)', 'VII(P)', 'VII(B)', 'VIII(P)', 'VIII(B)']
+    plt.xticks(x_axis, labels)
 
-    print('Creating a processor for %s' % filename)
+    plt.ylabel('Delay, s')
 
-    p = BasicProcessor(filename=filename)
+    set_box_plot(bp_shared)
 
-    d24 = p.get_all_delays()
+    savefig('../../sgpaper/pics/app_delay.pdf', format='pdf', bbox='tight')
+    show()
 
-    # --- plotting --- #
 
-    figure(figsize=(7.5,    4))
 
-    bp = boxplot([d11, d12, d13, d14, d21, d22, d23, d24], showmeans=True, showfliers=False)
+
+def plot_all_delays():
+    """
+    Plot delay for all packets, on the scenario basis
+    :return:
+    """
+    # --- folder one --- #
+    folder = os.getcwd() + '/../' + 'tdma/'
+
+    files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
+
+    d = []
+
+    for filename in files:
+        print('Creating a processor for %s' % filename)
+        p = BasicProcessor(filename=folder+filename)
+        d.append(p.get_all_delays())
+
+    # --- folder two --- #
+    folder = os.getcwd() + '/../' + 'shared/'
+
+    files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
+
+    for filename in files:
+        print('Creating a processor for %s' % filename)
+        p = BasicProcessor(filename=folder+filename)
+        d.append(p.get_all_delays())
+
+    # --- folder two --- #
+
+    figure(figsize=(7.5, 4))
+
+    bp = boxplot(d, showmeans=True, showfliers=False)
 
     ylim((0, 2.5))
     grid(True)
@@ -269,37 +303,13 @@ def plot_all_delays():
 
     set_box_plot(bp)
 
-    # seaborn.plt.show()
     savefig('../../sgpaper/pics/all_delay.pdf', format='pdf', bbox='tight')
     show()
 
 
-
-
 if __name__ == '__main__':
-
-    plot_all_delays()
-
-"""
-    # if len(sys.argv) != 2:
-    #    exit("Usage: %s dumpfile" % sys.argv[0])
-
-    folder = gl_dump_path # os.getcwd() + '/../' + 'tdma/'
-
-    filename = gl_dump_path + find_latest_dump(gl_dump_path)
-
-    print('Creating a processor for %s' % filename)
-    p = BasicProcessor(filename=filename)
-    print(p.find_motes_in_action())
-    p.plot_num_packets()
-    p.plot_timeline()
-    _ = p.plot_delays()
-    p.plot_avg_hops()
-    p.plot_retx()
-
-    plt.show()
-"""
-
+    # plot_all_delays()
+    plot_normalized_delay_per_application()
 
 
 

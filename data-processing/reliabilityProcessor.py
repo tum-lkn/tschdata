@@ -7,22 +7,24 @@ from functools import reduce
 import matplotlib.pyplot as plt
 import operator
 from matplotlib import gridspec
-# import seaborn.apionly
+import seaborn.apionly
 import seaborn
 
 from delayProcessor import DelayLogProcessor
 
-seaborn.set_style("whitegrid", {'figure.autolayout': True, 'font.size': 16, 'font.family': 'serif',
-                                'font.sans-serif': ['Helvetica'], 'grid.linestyle': u'--', 'axes.edgecolor': '0.2'})
+# seaborn.set_style("whitegrid", {'figure.autolayout': True, 'font.size': 16, 'font.family': 'serif',
+#                                'font.sans-serif': ['Helvetica'], 'grid.linestyle': u'--', 'axes.edgecolor': '0.2'})
 
-# from matplotlib import rcParams
-# rcParams.update({'figure.autolayout': True, 'font.size': 14, 'font.family': 'serif', 'font.sans-serif': ['Helvetica']})
+from matplotlib import rcParams
+rcParams.update({'figure.autolayout': True, 'font.size': 14, 'font.family': 'serif', 'font.sans-serif': ['Helvetica']})
+
 
 def prod(iterable):
     return reduce(operator.mul, iterable, 1)
 
 gl_best_links = '../matlab-murat/destinations.csv'
 gl_reliability = '../matlab-murat/reliability.csv'
+
 
 class ReliabilityProcessor():
 
@@ -288,6 +290,7 @@ def plot_all_data(callback=plot_mean_vs_path_length):
     ax0 = fig.add_subplot(gs[0])
     callback(result_tdma, ax0)
 
+    plt.grid(True)
     plt.ylim((0, 3))
     plt.ylabel('Delay, s')
     # plt.xlabel('Path reliabiltiy')
@@ -320,10 +323,11 @@ def plot_all_data(callback=plot_mean_vs_path_length):
     plt.ylabel('Delay, s')
     plt.xlabel('Path reliability')
 
+    plt.grid(True)
+
     plt.tight_layout()
     plt.savefig('../../sgpaper/pics/path_delay_vs_reliability.pdf', format='pdf', bbox='tight')
     plt.show()
-
 
 
 if __name__ == '__main__':
