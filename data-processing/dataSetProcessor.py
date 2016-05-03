@@ -107,7 +107,8 @@ class DataSetProcessor(LogProcessor):
 if __name__ == '__main__':
 
     folders= ('tdma','shared')
-    files= ('no_interference','interference','induced_interference')
+    files= ('no_interference','interference','induced_interference','high_load')
+    files= ('no_interference','interference','induced_interference','high_load')
 
     tot_packets=[]
     duration=[]
@@ -166,7 +167,7 @@ if __name__ == '__main__':
             # else:
             #     fig.suptitle(folder.title() + '-' + file)
 
-            datafile = cbook.get_sample_data(os.getcwd()+"/images/LKN_plan_v0.2.jpg")
+            datafile = cbook.get_sample_data(os.getcwd()+"/images/LKN_plan_v0.3.jpg")
 
             #ax=plt.subplot(2,3,k)
             #ax.set_title((folder+'-'+file).title())
