@@ -132,9 +132,9 @@ class MeasurementPacket(TestbedPacket):
     def get_path(self, full=True):
         path = [hop['addr'] for hop in self.hop_info]
         if full:
-            return path + [1]
+            return tuple(path + [1])
         else:
-            return path
+            return tuple(path)
     
     def get_channels(self):
         channels = [hop['freq'] for hop in self.hop_info]

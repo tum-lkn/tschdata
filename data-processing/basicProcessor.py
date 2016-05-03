@@ -31,14 +31,23 @@ def set_box_plot(bp):
     for m in bp['medians']:
         setp(m, color='red', linewidth=1.5)
 
-def set_box_plot_even(bp):
-    for b in bp['boxes']:
-        setp(b, color='blue', linewidth=1.5)
-    for c in bp['caps']:
+def set_box_plot_diff(bp):
+    for idx, b in enumerate(bp['boxes']):
+        if idx%2 == 1:
+            setp(b, color='blue', linewidth=1.5)
+        else:
+            setp(b, color='red', linewidth=1.5)
+    for idx, c in enumerate(bp['caps']):
+        #if idx%2 == 1:
         setp(c, color='black', linewidth=1.5)
-    for w in bp['whiskers']:
-        setp(w, color='blue', linewidth=1.5)
-    for m in bp['medians']:
+
+    for idx, w in enumerate(bp['whiskers']):
+        if idx % 2 == 1:
+            setp(w, color='blue', linewidth=1.5)
+        else:
+            setp(w, color='red', linewidth=1.5)
+    for idx, m in enumerate(bp['medians']):
+        # if idx%2 == 1:
         setp(m, color='red', linewidth=1.5)
 
 
@@ -224,7 +233,7 @@ def plot_normalized_delay_per_application():
 
     # --- folder two --- #
 
-    fig = plt.figure(figsize=(7.5, 10))
+    fig = plt.figure(figsize=(7.5, 6))
     gs = gridspec.GridSpec(2, 1, height_ratios=[1, 1])
 
     ax0 = fig.add_subplot(gs[0])
@@ -260,6 +269,17 @@ def plot_normalized_delay_per_application():
     show()
 
 
+def plot_all_retx():
+    for folder in ['../tdma/', '../shared/']:
+        files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
+        files = sorted(files)
+        for filename in files:
+            print('Creating a processor for %s' % filename)
+            p = BasicProcessor(filename=folder+filename)
+            p.plot_retx()
+    plt.show()
+
+
 
 
 def plot_all_delays():
@@ -271,6 +291,7 @@ def plot_all_delays():
     folder = os.getcwd() + '/../' + 'tdma/'
 
     files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
+    files = sorted(files)
 
     d = []
 
@@ -283,6 +304,7 @@ def plot_all_delays():
     folder = os.getcwd() + '/../' + 'shared/'
 
     files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
+    files = sorted(files)
 
     for filename in files:
         print('Creating a processor for %s' % filename)
@@ -298,6 +320,10 @@ def plot_all_delays():
     ylim((0, 2.5))
     grid(True)
 
+    x_axis = list(range(9))
+    labels = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
+    plt.xticks(x_axis, labels)
+
     plt.xlabel('Data set')
     plt.ylabel('Delay, s')
 
@@ -309,7 +335,8 @@ def plot_all_delays():
 
 if __name__ == '__main__':
     # plot_all_delays()
-    plot_normalized_delay_per_application()
+    # plot_normalized_delay_per_application()
+    plot_all_retx()
 
 
 
