@@ -97,7 +97,7 @@ class TopologyLogProcessor(LogProcessor):
 
         if axis is None:
             #nx.draw(G, pos, node_color='#A0CBE2', node_size=w_nodes ,edge_color=colors, width=4, edge_cmap=plt.cm.Blues, with_labels=True)
-            nx.draw_networkx_edges(G, pos, alpha=0.8, edge_color=colors, width=4, edge_vmin=-20 , edge_vmax=max(colors),
+            nx.draw_networkx_edges(G, pos, edge_color=colors, width=4, edge_vmin=-2000 , edge_vmax=max(colors),
                                    edge_cmap=plt.cm.Reds, with_labels=True)
 
             nx.draw_networkx_nodes(G, pos, node_color='#E2785D', node_size=w_nodes, with_labels=True)
