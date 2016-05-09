@@ -118,13 +118,13 @@ class TopologyLogProcessor(LogProcessor):
             IF_nodes = [15, 16, 17, 18, 19]
             IF_edges = [(15, 16), (17, 18), (18, 19)]
             IF_pos = {15: (430, 616), 16: (430, 500), 17: (840, 220), 18: (660, 220), 19: (710, 616)}
-            IF_labels = {15: "AP 1", 16: "D 1", 17: " D 2", 18: "AP 2", 19: "D 3"}
+            IF_labels = {15: "AP 1", 16: "D1", 17: " D2", 18: "AP 2", 19: "D3"}
             IF.add_nodes_from(IF_nodes)
             IF.add_edges_from(IF_edges)
 
             # IF Graph plots
-            nx.draw_networkx_edges(IF, IF_pos)
-            # nx.draw_networkx_nodes(IF, IF_pos, node_color='#FFFFFF', with_labels=True)
+            nx.draw_networkx_edges(IF, IF_pos, width=2)
+            nx.draw_networkx_nodes(IF, IF_pos, node_color='#FFFFFF', node_size=1000,  with_labels=True)
             nx.draw_networkx_labels(IF, IF_pos, IF_labels, font_size=12)
 
         return

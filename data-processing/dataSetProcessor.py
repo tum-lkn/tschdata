@@ -184,7 +184,7 @@ if __name__ == '__main__':
             #                       node_weights=list(nodes_occurrences.values()),links1=links,
             #                      link_weights1=link_occurrences,links2=links,link_weights2=link_rssis)
             plt.tight_layout()
-            plt.savefig("images/topology_colormap_"+folder+'_'+file+"FINAL.png")
+            plt.savefig("images/topology_colormap_"+folder+'_'+file+"FINAL.pdf", format='pdf')
 
             #break
         #break
