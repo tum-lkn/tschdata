@@ -107,8 +107,8 @@ class DataSetProcessor(LogProcessor):
 if __name__ == '__main__':
 
     folders= ('tdma','shared')
-    files= ('no_interference','interference','induced_interference','high_load')
-    files= ('no_interference','interference','induced_interference','high_load')
+    files= ('1-1-no_interference','2-1-interference','3-1-induced_interference','4-1-high_load')
+    #files= ('no_interference','interference','induced_interference','high_load')
 
     tot_packets=[]
     duration=[]
@@ -157,8 +157,6 @@ if __name__ == '__main__':
 
             p = TopologyLogProcessor(filename=path)
 
-            # p.plot_colormap(nodes=list(nodes_occurrences.keys()),node_weights=list(nodes_occurrences.values())
-            # ,links=links,link_weights=link_occurrences ,axis=axs[i,j])
 
             #plt.figure(figsize=(15, 4))
             fig=plt.figure()
@@ -175,11 +173,18 @@ if __name__ == '__main__':
             img = imread(datafile)
             plt.imshow(img)#, zorder=0, extent=[0, 24.0, -1, 2.0])
 
-            p.plot_multi_colormap(nodes=list(nodes_occurrences.keys()),
-                                   node_weights=list(nodes_occurrences.values()),links1=links,
-                                   link_weights1=link_occurrences,links2=links,link_weights2=link_rssis)
+            if j is 2:
+                p.plot_colormap(nodes=list(nodes_occurrences.keys()),node_weights=list(nodes_occurrences.values())
+                            ,links=links,link_weights=link_occurrences,boolIF=True)
+            else:
+                p.plot_colormap(nodes=list(nodes_occurrences.keys()), node_weights=list(nodes_occurrences.values())
+                            , links=links, link_weights=link_occurrences, boolIF=False)
+
+            # p.plot_multi_colormap(nodes=list(nodes_occurrences.keys()),
+            #                       node_weights=list(nodes_occurrences.values()),links1=links,
+            #                      link_weights1=link_occurrences,links2=links,link_weights2=link_rssis)
             plt.tight_layout()
-            plt.savefig("images/topology_colormap_"+folder+'_'+file+"_notitle_visiobgrnd.png")
+            plt.savefig("images/topology_colormap_"+folder+'_'+file+"FINAL.pdf", format='pdf')
 
             #break
         #break
