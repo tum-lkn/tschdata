@@ -19,6 +19,7 @@ from pylab import plot, show, savefig, xlim, figure, \
 from logProcessor import LogProcessor
 from helperFunctions import find_latest_dump, set_box_plot, set_figure_parameters, get_all_files
 from topologyProcessor import TopologyLogProcessor
+import statsmodels.api as sm
 
 
 set_figure_parameters()
@@ -251,7 +252,6 @@ def plot_normalized_delay_per_application():
 
     d_tdma = []
 
-
     for filename in files:
         p = BasicProcessor(filename=folder+filename)
         d_tdma.append(p.get_all_delays(motes=[2, 3, 4, 5, 6, 7, 8], normalized=True))
@@ -318,9 +318,7 @@ def plot_all_retx():
     plt.show()
 
 
-
-
-def plot_all_delays():
+def plot_all_delays(cdf=False):
     """
     Plot delay for all packets, on the scenario basis
     :return:
@@ -349,28 +347,49 @@ def plot_all_delays():
 
     # --- folder two --- #
 
-    figure(figsize=(7.5, 4))
+    if not cdf:
 
-    bp = boxplot(d, showmeans=True, showfliers=False)
+        figure(figsize=(7.5, 4))
 
-    ylim((0, 2.5))
-    grid(True)
+        bp = boxplot(d, showmeans=True, showfliers=False)
 
-    x_axis = list(range(9))
-    labels = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
-    plt.xticks(x_axis, labels)
+        ylim((0, 2.5))
+        grid(True)
 
-    plt.xlabel('Data set')
-    plt.ylabel('Delay, s')
+        x_axis = list(range(9))
+        labels = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
+        plt.xticks(x_axis, labels)
 
-    set_box_plot(bp)
+        plt.xlabel('Data set')
+        plt.ylabel('End-to-end delay, s')
 
-    savefig('../../sgpaper/pics/all_delay.pdf', format='pdf', bbox='tight')
-    show()
+        set_box_plot(bp)
+
+        savefig('../../sgpaper/pics/all_delay.pdf', format='pdf', bbox='tight')
+        show()
+    else:
+
+        figure(figsize=(7.5, 4))
+
+        for data_set in d:
+
+            ecdf = sm.distributions.ECDF(data_set)
+
+            x = np.linspace(min(data_set), max(data_set))
+            y = ecdf(x)
+
+            plt.step(x, y)
+
+            plt.xlim((0, 2.5))
+
+        plt.show()
 
 
-if __name__ == '__main__':
-
+def plot_all_reliabilities():
+    """
+    Plot packet delivery ratio for all data sets
+    :return:
+    """
     rel = []
     for filename in get_all_files(gl_dump_path):
         p = BasicProcessor(filename=filename)
@@ -381,7 +400,11 @@ if __name__ == '__main__':
     plt.figure()
     plt.boxplot(rel, showmeans=True)
     plt.show()
-    # plot_all_delays()
+
+
+if __name__ == '__main__':
+    plot_all_delays()
+    # plot_all_reliabilities()
     # plot_normalized_delay_per_application()
     # plot_all_retx()
 

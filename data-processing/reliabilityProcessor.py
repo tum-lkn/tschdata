@@ -9,8 +9,9 @@ import operator
 from matplotlib import gridspec
 import seaborn.apionly
 import seaborn
+from basicProcessor import BasicProcessor
 
-from helperFunctions import set_figure_parameters
+from helperFunctions import set_figure_parameters, get_all_files
 from delayProcessor import DelayLogProcessor
 
 
@@ -82,14 +83,73 @@ class ReliabilityProcessor():
 
 gl_reliability_map = ReliabilityProcessor()
 
-gl_data_set = {'tdma/no_interference.log': 0,
-               'tdma/interference.log': 1,
-               'tdma/induced_interference.log': 2,
-               'tdma/high_load.log': 3,
-               'shared/no_interference.log': 4,
-               'shared/interference.log': 5,
-               'shared/induced_interference.log': 6,
-               'shared/high_load.log': 7}
+gl_data_set = {'tdma/1-1-no_interference.log': 0,
+               'tdma/2-1-interference.log': 1,
+               'tdma/3-1-induced_interference.log': 2,
+               'tdma/4-1-high_load.log': 3,
+               'shared/1-1-no_interference.log': 4,
+               'shared/2-1-interference.log': 5,
+               'shared/3-1-induced_interference.log': 6,
+               'shared/4-1-high_load.log': 7}
+
+gl_line_color_map = {0: 'rs--',
+                     1: 'ro--',
+                     2: 'r^--',
+                     3: 'rx--',
+                     4: 'bs:',
+                     5: 'bo:',
+                     6: 'b^:',
+                     7: 'bx:'}
+
+gl_legend_map = {0: 'I',
+                     1: 'II',
+                     2: 'III',
+                     3: 'IV',
+                     4: 'V',
+                     5: 'VI',
+                     6: 'VII',
+                     7: 'VIII'}
+
+def plot_delay_cdf():
+
+    plt.figure(figsize=(7.5, 5))
+
+    steps = [0.5, 1, 2, 5, 10]
+
+
+    for idx, logfile in enumerate(get_all_files('../')):
+
+        bp = BasicProcessor(filename=logfile)
+        # delay_df.set_value(idx, 'set', logfile)
+        delay_ser = pd.Series(bp.get_all_delays())
+
+        # print(delay_ser)
+
+        counts = []
+
+        for step in steps:
+            count = (delay_ser < step).sum() / len(delay_ser)
+            counts.append(count)
+
+        plt.plot([i+1 for i, _ in enumerate(steps)], counts, gl_line_color_map[idx], label=gl_legend_map[idx])
+
+    plt.hlines(0.95, xmin=0, xmax=len(steps)+1, linestyles='--', linewidth=2, label='0.95')
+    # plt.hlines(0.99, xmin=0, xmax=len(steps)+1, linestyles='--', linewidth=1)
+
+    x_axis = [0.5] + list(range(1, len(steps)+1)) + [len(steps)+0.5]
+    labels = [''] + [str(step) for step in steps] + ['']
+    plt.xticks(x_axis, labels)
+    plt.ylim(0.4, 1.1)
+    plt.legend(loc=0, ncol=3)
+    plt.grid(True)
+
+    plt.xlabel('Deadline, s')
+    plt.ylabel('Packet delivery ratio')
+
+    plt.savefig('../../sgpaper/pics/cdf.pdf', format='pdf', bbox='tight')
+
+    plt.show()
+
 
 
 def delay_reliabiltiy_correlation(logfile):
@@ -119,9 +179,9 @@ def delay_reliabiltiy_correlation(logfile):
     # filter out paths with no reliability data
     path_rel_df = path_rel_df[path_rel_df['reliability'] != -1]
 
-
     # plt.figure()
     return path_rel_df
+
 
 def plot_mean_vs_path_length(path_data):
     """
@@ -269,19 +329,11 @@ def plot_all_data(callback=plot_mean_vs_path_length):
 
     data_tdma = []
 
-    folder = '../tdma/'
+    files = get_all_files('../', folders = ['tdma'])
 
-    logfile = folder + 'no_interference.log'
-    data_tdma.append(delay_reliabiltiy_correlation(logfile))
+    for filename in files:
 
-    logfile = folder + 'interference.log'
-    data_tdma.append(delay_reliabiltiy_correlation(logfile))
-
-    logfile = folder + 'induced_interference.log'
-    data_tdma.append(delay_reliabiltiy_correlation(logfile))
-
-    logfile = folder + 'high_load.log'
-    data_tdma.append(delay_reliabiltiy_correlation(logfile))
+        data_tdma.append(delay_reliabiltiy_correlation(filename))
 
     result_tdma = pd.concat(data_tdma)
 
@@ -290,26 +342,17 @@ def plot_all_data(callback=plot_mean_vs_path_length):
 
     plt.grid(True)
     plt.ylim((0, 3))
-    plt.ylabel('Delay, s')
+    plt.ylabel(r'Path delay $d_p$, s')
     # plt.xlabel('Path reliabiltiy')
 
     # plt.figure()
 
     data_shared = []
 
-    folder = '../shared/'
+    files = get_all_files('../', folders=['shared'])
 
-    logfile = folder + 'no_interference.log'
-    data_shared.append(delay_reliabiltiy_correlation(logfile))
-
-    logfile = folder + 'interference.log'
-    data_shared.append(delay_reliabiltiy_correlation(logfile))
-
-    logfile = folder + 'induced_interference.log'
-    data_shared.append(delay_reliabiltiy_correlation(logfile))
-
-    logfile = folder + 'high_load.log'
-    data_shared.append(delay_reliabiltiy_correlation(logfile))
+    for filename in files:
+        data_shared.append(delay_reliabiltiy_correlation(filename))
 
     result_shared = pd.concat(data_shared)
 
@@ -318,8 +361,8 @@ def plot_all_data(callback=plot_mean_vs_path_length):
     callback(result_shared, ax1)
 
     plt.ylim((0.0, 0.14))
-    plt.ylabel('Delay, s')
-    plt.xlabel('Path reliability')
+    plt.ylabel(r'Path delay $d_p$, s')
+    plt.xlabel('Path PDR')
 
     plt.grid(True)
 
@@ -330,7 +373,8 @@ def plot_all_data(callback=plot_mean_vs_path_length):
 
 if __name__ == '__main__':
 
-    plot_all_data(plot_mean_vs_prod)
+    # plot_all_data(plot_mean_vs_prod)
+    plot_delay_cdf()
 
 
 

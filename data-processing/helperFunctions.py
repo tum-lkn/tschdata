@@ -237,11 +237,16 @@ def mean_confidence_interval(data, confidence=0.95):
     return h
 
 
-def get_all_files(path):
+def get_all_files(path, folders=None):
 
     files = []
 
-    for folder in [path + 'tdma/', path + 'shared/']:
+    if folders is None:
+        folders = [path + 'tdma/', path + 'shared/']
+    else:
+        folders = [path + folder + '/' for folder in folders]
+
+    for folder in folders:
         temp = [f for f in os.listdir(folder) if isfile(join(folder, f))]
         temp = sorted(temp)
         files += [folder+f for f in temp]

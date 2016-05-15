@@ -263,11 +263,11 @@ class DelayLogProcessor(LogProcessor):
 
         # plot for mean values
         plt.plot(x_axis, [np.mean(p[1]) for p in paths_real],
-                 's-', label='delay, avg')
+                 's-', label=r'$d_p$, avg')
 
         # plot for average minimum packet delays
         plt.plot(x_axis, [np.mean(p[1]) for p in paths_min],
-                 '^-', label=r'$d^{pkt}_{\min}$, avg')
+                 '^-', label=r'$d_{retx}$, avg')
 
         # plot for minimum path delays
         min_possible_delay = [self.schedule.get_min_path_delay(p[0]) for p in paths_min]
@@ -286,7 +286,7 @@ class DelayLogProcessor(LogProcessor):
         plt.xlabel('path')
         plt.legend(loc=0, fontsize=12, ncol=3)
 
-        if '3-2-' in self.filename:
+        if '3-1' in self.filename and 'shared' in self.filename:
             plt.savefig('../../sgpaper/pics/path_delay_example.pdf', format='pdf', bbox='tight')
 
         # plt.show()
@@ -439,7 +439,7 @@ def plot_int_buf_delay():
     plot_intercepting_path_delays(ax0, shared=False)
 
     x_axis = list(range(1, 7))
-    labels = ['I (i)', 'III (i)', 'IV (i)', 'I (b)', 'III (b)', 'IV (b)']
+    labels = ['I (l)', 'III (l)', 'IV (l)', 'I (b)', 'III (b)', 'IV (b)']
     plt.xticks(x_axis, labels)
     plt.ylabel('Delay, s')
 
@@ -448,7 +448,7 @@ def plot_int_buf_delay():
 
     plot_intercepting_path_delays(ax1, shared=True)
 
-    labels = ['V (i)', 'VII (i)', 'VIII (i)', 'V (b)', 'VII(b)', 'VIII (b)']
+    labels = ['V (l)', 'VII (l)', 'VIII (l)', 'V (b)', 'VII(b)', 'VIII (b)']
     plt.xticks(x_axis, labels)
 
     plt.xlabel('Data sets')
