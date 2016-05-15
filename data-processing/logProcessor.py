@@ -25,6 +25,7 @@ class LogProcessor:
     """
 
     def __init__(self, filename):
+        print('Creating a processor for %s' % filename)
         self.filename = filename  # we only store the filename
         self.packets = self.load_packets()
 

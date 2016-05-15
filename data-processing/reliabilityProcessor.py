@@ -10,13 +10,11 @@ from matplotlib import gridspec
 import seaborn.apionly
 import seaborn
 
+from helperFunctions import set_figure_parameters
 from delayProcessor import DelayLogProcessor
 
-# seaborn.set_style("whitegrid", {'figure.autolayout': True, 'font.size': 16, 'font.family': 'serif',
-#                                'font.sans-serif': ['Helvetica'], 'grid.linestyle': u'--', 'axes.edgecolor': '0.2'})
 
-from matplotlib import rcParams
-rcParams.update({'figure.autolayout': True, 'font.size': 14, 'font.family': 'serif', 'font.sans-serif': ['Helvetica']})
+set_figure_parameters()
 
 
 def prod(iterable):

@@ -11,11 +11,11 @@ from basicProcessor import set_box_plot
 
 from matplotlib import rcParams
 rcParams.update({'figure.autolayout': True})
-
 from logProcessor import LogProcessor
+from helperFunctions import set_figure_parameters
 
-from matplotlib import rcParams
-rcParams.update({'figure.autolayout': True, 'font.size': 14, 'font.family': 'serif', 'font.sans-serif': ['Helvetica']})
+
+set_figure_parameters()
 
 pd.options.mode.chained_assignment = None
 
@@ -356,8 +356,6 @@ def plot_all_path_delays(shared=False):
             # ignore medium interference case
             continue
 
-        print('Creating a processor for %s' % filename)
-
         p = DelayLogProcessor(filename=folder+filename, schedule=sched)
 
         r0, m0 = p.plot_path_delay()
@@ -402,8 +400,6 @@ def plot_intercepting_path_delays(ax, shared=False):
         set_id = idx
         if idx > 0:
             set_id -= 1
-
-        print('Creating a processor for %s' % filename)
 
         pr = DelayLogProcessor(filename=folder+filename, schedule=sched)
 
@@ -457,7 +453,7 @@ def plot_int_buf_delay():
 
     plt.xlabel('Data sets')
     plt.ylabel('Delay, s')
-    
+
     plt.savefig('../../sgpaper/pics/int_buf_delay.pdf', format='pdf', bbox='tight')
 
 

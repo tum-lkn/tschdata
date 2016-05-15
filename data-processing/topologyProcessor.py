@@ -2,12 +2,12 @@ __author__ = 'Samuele Zoppi'
 
 import os
 import matplotlib.pyplot as plt
-import networkx as nx
+# import networkx as nx
 
 from logProcessor import LogProcessor
 from operator import itemgetter
-from networkx.drawing.nx_agraph import write_dot
-#from dataSetProcessor import DataSetProcessor
+# from networkx.drawing.nx_agraph import write_dot
+# from dataSetProcessor import DataSetProcessor
 
 
 gl_dump_path = os.getcwd() + '/../shared'
