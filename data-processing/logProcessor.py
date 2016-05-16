@@ -25,6 +25,7 @@ class LogProcessor:
     """
 
     def __init__(self, filename):
+        print('Creating a processor for %s' % filename)
         self.filename = filename  # we only store the filename
         self.packets = self.load_packets()
 
@@ -62,7 +63,7 @@ class LogProcessor:
         return np.mean(self.get_delays())
 
 
-    def get_delays(self, addr):
+    def get_delays(self, addr, normalized=False):
         """
         Get delay values for every packet belonging to the same src mote with addr
         :return: delay list: delay for every packet in seconds
@@ -77,6 +78,9 @@ class LogProcessor:
             if d < 0:
                 # shouldn't be the case...
                 continue
+
+            if normalized:
+                d = d/pkt.num_hops()
 
             delay.append(d)
 

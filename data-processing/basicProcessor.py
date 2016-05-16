@@ -8,17 +8,27 @@ __author__ = 'Mikhail Vilgelm'
 
 import os
 import matplotlib.pyplot as plt
+from os.path import isfile, join
 import numpy as np
 import sys
 import datetime
+from matplotlib import gridspec
+from pylab import plot, show, savefig, xlim, figure, \
+                hold, ylim, legend, boxplot, setp, axes, grid
 
 from logProcessor import LogProcessor
-from helperFunctions import find_latest_dump
+from helperFunctions import find_latest_dump, set_box_plot, set_figure_parameters, get_all_files
 from topologyProcessor import TopologyLogProcessor
+import statsmodels.api as sm
+
+
+set_figure_parameters()
 
 gl_mote_range = range(1, 14)
-gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
-# gl_dump_path = os.getcwd() + '/../' + 'tdma/no-interference-hopping/'
+# gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
+
+gl_dump_path = os.getcwd() + '/../'
+
 gl_image_path = os.getenv("HOME") + ''
 
 
@@ -84,13 +94,28 @@ class BasicProcessor(LogProcessor):
         delays = []
         for addr in gl_mote_range:
             delays.append(self.get_delays(addr))
-        plt.boxplot(delays)
+        plt.boxplot(delays, showmeans=True)
+
+        plt.ylim((0, 2))
 
         plt.ylabel('delay, s')
         plt.xlabel('mote #')
         plt.grid(True)
 
+        # return means
+        return [np.mean(d) for d in delays if len(d) > 0]
 
+    def get_all_delays(self, motes=gl_mote_range, normalized=False):
+        """
+
+        :return:
+        """
+        delays = []
+        for addr in motes:
+            delays += self.get_delays(addr, normalized)
+
+        # return means
+        return delays
 
     def plot_avg_hops(self):
         """
@@ -109,8 +134,42 @@ class BasicProcessor(LogProcessor):
         plt.ylabel('hops')
         plt.xlabel('mote #')
 
+    def correct_timeline(self, clean_all=False):
 
+        motes = self.sort_by_motes()
 
+        if clean_all:
+            motes_clean = [[] for _ in gl_mote_range]
+
+        for idx, mote in enumerate(motes):
+            if len(mote) == 0:
+                continue
+
+            last_seen_pkt = None
+            seqn_correction = 0
+
+            for pkt in mote:
+                if last_seen_pkt is None:
+                    last_seen_pkt = pkt
+
+                pkt.seqN += seqn_correction
+
+                if (pkt.seqN < last_seen_pkt.seqN) and (pkt.asn_first > last_seen_pkt.asn_first):
+                    print('Mote %d, reset detected at %d' % (idx+1, pkt.asn_first))
+                    pkt.seqN -= seqn_correction  # previous correction was falsely done, cancel it
+                    seqn_correction = last_seen_pkt.seqN
+                    pkt.seqN += seqn_correction
+                    if clean_all:
+                        break
+
+                if clean_all:
+                    motes_clean[idx].append(pkt)
+
+                last_seen_pkt = pkt
+
+        if clean_all:
+            for mote in motes_clean:
+                self.packets += mote
 
     def plot_timeline(self):
 
@@ -140,31 +199,244 @@ class BasicProcessor(LogProcessor):
 
         plt.grid(True)
 
+    def plot_reliability(self, return_result=False):
 
+        motes = self.sort_by_motes()
+
+        success = []
+
+        weights = []
+
+        for mote in motes:
+            # convert to set
+            if len(mote) == 0:
+                continue
+
+            seen_sqns = set([pkt.seqN for pkt in mote])
+            max_sqn = max(seen_sqns)
+            min_sqn = min(seen_sqns)
+            count_loss = 0
+            for i in range(min_sqn, max_sqn+1):
+                if not i in seen_sqns:
+                    count_loss += 1
+            pdr = (max_sqn - min_sqn - count_loss)/(max_sqn-min_sqn)
+            success.append(pdr)
+            weights.append(max_sqn-min_sqn)
+            print('PDR: %.2f' % pdr)
+
+        print('Average PDR: %.2f' % np.mean(success))
+
+        sum_weights = sum(weights)
+        weights = [w/sum_weights for w in weights]
+
+        weighted_avg = sum([weights[idx]*s for idx, s in enumerate(success)])
+
+
+        if return_result:
+            return success, weighted_avg
+        else:
+            plt.figure()
+            plt.plot(gl_mote_range, success)
+
+
+
+
+    def plot_app_drop_rate(self):
+        pass
+        for mote in self.sort_by_motes():
+            pass
+
+
+def plot_normalized_delay_per_application():
+    """
+    Plot delay for scenario / application: normalized per hop
+    :return:
+    """
+
+    # --- folder one --- #
+    folder = os.getcwd() + '/../' + 'tdma/'
+
+    files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
+    files = sorted(files)
+
+    d_tdma = []
+
+    for filename in files:
+        p = BasicProcessor(filename=folder+filename)
+        d_tdma.append(p.get_all_delays(motes=[2, 3, 4, 5, 6, 7, 8], normalized=True))
+        d_tdma.append(p.get_all_delays(motes=[9, 10, 11], normalized=True))
+
+    # --- folder two --- #
+    folder = os.getcwd() + '/../' + 'shared/'
+
+    files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
+    files = sorted(files)
+
+    d_shared = []
+
+    for filename in files:
+        p = BasicProcessor(filename=folder+filename)
+        d_shared.append(p.get_all_delays(motes=[2, 3, 4, 5, 6, 7, 8], normalized=True))
+        d_shared.append(p.get_all_delays(motes=[9, 10, 11], normalized=True))
+
+    # --- folder two --- #
+
+    fig = plt.figure(figsize=(7.5, 6))
+    gs = gridspec.GridSpec(2, 1, height_ratios=[1, 1])
+
+    ax0 = fig.add_subplot(gs[0])
+    bp_tdma = ax0.boxplot(d_tdma, showmeans=True, showfliers=False)
+
+    x_axis = list(range(9))
+    labels = ['', 'I(P)', 'I(B)', 'II(P)', 'II(B)', 'III(P)', 'III(B)', 'IV(P)', 'IV(B)']
+    plt.xticks(x_axis, labels)
+
+    # ylim((0, 4))
+    grid(True)
+
+    # plt.xlabel('Data set')
+    plt.ylabel('Delay, s')
+
+    set_box_plot(bp_tdma)
+
+    ax1 = fig.add_subplot(gs[1])
+    bp_shared = ax1.boxplot(d_shared, showmeans=True, showfliers=False)
+
+    # ylim((0, 0.2))
+    grid(True)
+
+    # plt.xlabel('Data set')
+    labels = ['', 'V(P)', 'V(B)', 'VI(P)', 'VI(B)', 'VII(P)', 'VII(B)', 'VIII(P)', 'VIII(B)']
+    plt.xticks(x_axis, labels)
+
+    plt.ylabel('Delay, s')
+
+    set_box_plot(bp_shared)
+
+    savefig('../../sgpaper/pics/app_delay.pdf', format='pdf', bbox='tight')
+    show()
+
+
+def plot_all_retx():
+    for folder in ['../tdma/', '../shared/']:
+        files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
+        files = sorted(files)
+        for filename in files:
+            p = BasicProcessor(filename=folder+filename)
+            p.plot_retx()
+    plt.show()
+
+
+def plot_all_delays(cdf=False):
+    """
+    Plot delay for all packets, on the scenario basis
+    :return:
+    """
+    # --- folder one --- #
+    folder = os.getcwd() + '/../' + 'tdma/'
+
+    files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
+    files = sorted(files)
+
+    d = []
+
+    for filename in files:
+        p = BasicProcessor(filename=folder+filename)
+        d.append(p.get_all_delays())
+
+    # --- folder two --- #
+    folder = os.getcwd() + '/../' + 'shared/'
+
+    files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
+    files = sorted(files)
+
+    for filename in files:
+        p = BasicProcessor(filename=folder+filename)
+        d.append(p.get_all_delays())
+
+    # --- folder two --- #
+
+    if not cdf:
+
+        figure(figsize=(7.5, 4))
+
+        bp = boxplot(d, showmeans=True, showfliers=False)
+
+        ylim((0, 2.5))
+        grid(True)
+
+        x_axis = list(range(9))
+        labels = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
+        plt.xticks(x_axis, labels)
+
+        plt.xlabel('Data set')
+        plt.ylabel('End-to-end delay, s')
+
+        set_box_plot(bp)
+
+        savefig('../../sgpaper/pics/all_delay.pdf', format='pdf', bbox='tight')
+        show()
+    else:
+
+        figure(figsize=(7.5, 4))
+
+        for data_set in d:
+
+            ecdf = sm.distributions.ECDF(data_set)
+
+            x = np.linspace(min(data_set), max(data_set))
+            y = ecdf(x)
+
+            plt.step(x, y)
+
+            plt.xlim((0, 2.5))
+
+        plt.show()
+
+
+def plot_all_reliabilities():
+    """
+    Plot packet delivery ratio for all data sets
+    :return:
+    """
+    rel = []
+    avg = []
+    for filename in get_all_files(gl_dump_path):
+        p = BasicProcessor(filename=filename)
+        p.correct_timeline(clean_all=False)
+        p.plot_timeline()
+        r, w = p.plot_reliability(return_result=True)
+        rel.append(r)
+        avg.append(w)
+
+    plt.figure(figsize=(7.5, 3.5))
+    bp = plt.boxplot(rel, flierprops={'linewidth':1.5})
+
+    plt.hlines(0.95, xmin=0, xmax=9, linestyles='--', linewidth=1, label='0.95')
+    x_axis = list(range(9))
+    labels = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
+    plt.plot(x_axis[1:], avg, 'rs')
+
+    plt.xticks(x_axis, labels)
+    plt.grid(True)
+    plt.ylim((0.35, 1.1))
+    plt.legend(loc=4)
+
+    plt.ylabel('PDR')
+
+    set_box_plot(bp)
+
+    # plt.savefig('../../sgpaper/pics/rel3_mikhail.pdf', format='pdf', bbox='tight')
+    plt.show()
 
 
 if __name__ == '__main__':
+    # plot_all_delays()
+    plot_all_reliabilities()
+    # plot_normalized_delay_per_application()
+    # plot_all_retx()
 
-    # if len(sys.argv) != 2:
-    #    exit("Usage: %s dumpfile" % sys.argv[0])
 
-    folder = gl_dump_path
 
-    filename = folder+find_latest_dump(folder)
-    # filename=folder+'interference_hopping.log'
-    print('Creating a processor for %s' % filename)
 
-    p = BasicProcessor(filename=filename)
 
-    print(p.find_motes_in_action())
-
-    p.plot_num_packets()
-    p.plot_timeline()
-    p.plot_delays()
-    p.plot_avg_hops()
-    p.plot_retx()
-
-    p = TopologyLogProcessor(filename=filename)
-    p.plot_colormap()
-
-    plt.show()
