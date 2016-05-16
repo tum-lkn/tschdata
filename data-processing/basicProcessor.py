@@ -19,7 +19,7 @@ from pylab import plot, show, savefig, xlim, figure, \
 from logProcessor import LogProcessor
 from helperFunctions import find_latest_dump, set_box_plot, set_figure_parameters, get_all_files
 from topologyProcessor import TopologyLogProcessor
-import statsmodels.api as sm
+# import statsmodels.api as sm
 
 
 set_figure_parameters()
@@ -281,7 +281,7 @@ def plot_normalized_delay_per_application():
 
     # --- folder two --- #
 
-    fig = plt.figure(figsize=(7.5, 6))
+    fig = plt.figure(figsize=(7.5, 5.7))
     gs = gridspec.GridSpec(2, 1, height_ratios=[1, 1])
 
     ax0 = fig.add_subplot(gs[0])
@@ -313,7 +313,7 @@ def plot_normalized_delay_per_application():
 
     set_box_plot(bp_shared)
 
-    savefig('../../sgpaper/pics/app_delay.pdf', format='pdf', bbox='tight')
+    savefig('../../SGMeasurements/pics/app_delay.pdf', format='pdf', bbox='tight')
     show()
 
 
@@ -432,8 +432,8 @@ def plot_all_reliabilities():
 
 if __name__ == '__main__':
     # plot_all_delays()
-    plot_all_reliabilities()
-    # plot_normalized_delay_per_application()
+    # plot_all_reliabilities()
+    plot_normalized_delay_per_application()
     # plot_all_retx()
 
 

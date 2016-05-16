@@ -7,8 +7,6 @@ from functools import reduce
 import matplotlib.pyplot as plt
 import operator
 from matplotlib import gridspec
-import seaborn.apionly
-import seaborn
 from basicProcessor import BasicProcessor
 
 from helperFunctions import set_figure_parameters, get_all_files
@@ -112,7 +110,7 @@ gl_legend_map = {0: 'I',
 
 def plot_delay_cdf():
 
-    plt.figure(figsize=(7.5, 4))
+    plt.figure(figsize=(7.5, 3.5))
 
     steps = [0.5, 1, 2, 5, 10]
 
@@ -146,7 +144,7 @@ def plot_delay_cdf():
     plt.xlabel('Deadline, s')
     plt.ylabel('Packet ratio')
 
-    plt.savefig('../../sgpaper/pics/cdf.pdf', format='pdf', bbox='tight')
+    plt.savefig('../../SGMeasurements/pics/cdf.pdf', format='pdf', bbox='tight')
 
     plt.show()
 
@@ -324,7 +322,7 @@ def plot_all_data(callback=plot_mean_vs_path_length):
     Plot for all data
     :return:
     """
-    fig = plt.figure(figsize=(7.5, 6))
+    fig = plt.figure(figsize=(7.5, 5.7))
     gs = gridspec.GridSpec(2, 1, height_ratios=[1, 1])
 
     data_tdma = []
@@ -362,19 +360,19 @@ def plot_all_data(callback=plot_mean_vs_path_length):
 
     plt.ylim((0.0, 0.14))
     plt.ylabel(r'Path delay $d_p$, s')
-    plt.xlabel('Path PDR')
+    plt.xlabel('Path reliability')
 
     plt.grid(True)
 
     plt.tight_layout()
-    plt.savefig('../../sgpaper/pics/path_delay_vs_reliability.pdf', format='pdf', bbox='tight')
+    plt.savefig('../../SGMeasurements/pics/path_delay_vs_reliability.pdf', format='pdf', bbox='tight')
     plt.show()
 
 
 if __name__ == '__main__':
 
-    # plot_all_data(plot_mean_vs_prod)
-    plot_delay_cdf()
+    plot_all_data(plot_mean_vs_prod)
+    # plot_delay_cdf()
 
 
 

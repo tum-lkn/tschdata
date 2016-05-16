@@ -26,7 +26,7 @@ gl_num_serial_slots = 2
 gl_mote_range = range(1, 14)
 
 gl_dump_path = os.getcwd() + '/../'
-gl_image_path = os.getcwd() + '/images/'
+gl_image_path = '../../SGMeasurements/pics/'
 
 gl_save = False
 
@@ -258,7 +258,7 @@ class DelayLogProcessor(LogProcessor):
         paths_min = sorted(paths_min, key=lambda p: self.schedule.get_min_path_delay(p[0]))
         paths_real = sorted(paths_real, key=lambda p: self.schedule.get_min_path_delay(p[0]))
 
-        plt.figure(figsize=(7.5, 5))
+        plt.figure(figsize=(7.5, 4.5))
         x_axis = list(range(1, len(paths_real)+1))
 
         # plot for mean values
@@ -276,9 +276,9 @@ class DelayLogProcessor(LogProcessor):
                  label=r'$d_{\min}$', linewidth=3)
 
         x = range(1, len([str(p[0]) for p in paths_real])+1)
-        plt.xticks(x,  [str(p[0]) for p in paths_real])
+        plt.xticks(x,  [str(list(p[0])+[1]) for p in paths_real])
         locs, labels = plt.xticks()
-        plt.setp(labels, rotation=90)
+        plt.setp(labels, rotation=55)
 
         plt.ylim((-0.02, 0.2))
         plt.grid(True)
@@ -287,7 +287,7 @@ class DelayLogProcessor(LogProcessor):
         plt.legend(loc=0, fontsize=12, ncol=3)
 
         if '3-1' in self.filename and 'shared' in self.filename:
-            plt.savefig('../../sgpaper/pics/path_delay_example.pdf', format='pdf', bbox='tight')
+            plt.savefig(gl_image_path + 'path_delay_example.pdf', format='pdf', bbox='tight')
 
         # plt.show()
 
@@ -431,7 +431,7 @@ def plot_intercepting_path_delays(ax, shared=False):
 
 
 def plot_int_buf_delay():
-    fig = plt.figure(figsize=(7.5, 5.5))
+    fig = plt.figure(figsize=(7.5, 5.225))
     gs = gridspec.GridSpec(2, 1, height_ratios=[1, 1])
 
     ax0 = fig.add_subplot(gs[0])
@@ -453,13 +453,13 @@ def plot_int_buf_delay():
     plt.xlabel('Data sets')
     plt.ylabel('Delay, s')
 
-    plt.savefig('../../sgpaper/pics/int_buf_delay.pdf', format='pdf', bbox='tight')
+    plt.savefig(gl_image_path+'int_buf_delay.pdf', format='pdf', bbox='tight')
 
 
 
 
 if __name__ == '__main__':
-    plot_int_buf_delay()
-    # plot_all_path_delays(shared=True)
+    # plot_int_buf_delay()
+    plot_all_path_delays(shared=True)
     plt.show()
 
