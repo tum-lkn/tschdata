@@ -431,7 +431,7 @@ def plot_intercepting_path_delays(ax, shared=False):
 
 
 def plot_int_buf_delay():
-    fig = plt.figure(figsize=(7.5, 6))
+    fig = plt.figure(figsize=(7.5, 5.5))
     gs = gridspec.GridSpec(2, 1, height_ratios=[1, 1])
 
     ax0 = fig.add_subplot(gs[0])
@@ -443,8 +443,7 @@ def plot_int_buf_delay():
     plt.xticks(x_axis, labels)
     plt.ylabel('Delay, s')
 
-
-    ax1 = fig.add_subplot(gs[1], sharex=ax0)
+    ax1 = fig.add_subplot(gs[1])
 
     plot_intercepting_path_delays(ax1, shared=True)
 

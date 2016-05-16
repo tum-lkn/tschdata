@@ -205,6 +205,8 @@ class BasicProcessor(LogProcessor):
 
         success = []
 
+        weights = []
+
         for mote in motes:
             # convert to set
             if len(mote) == 0:
@@ -219,12 +221,19 @@ class BasicProcessor(LogProcessor):
                     count_loss += 1
             pdr = (max_sqn - min_sqn - count_loss)/(max_sqn-min_sqn)
             success.append(pdr)
+            weights.append(max_sqn-min_sqn)
             print('PDR: %.2f' % pdr)
 
         print('Average PDR: %.2f' % np.mean(success))
 
+        sum_weights = sum(weights)
+        weights = [w/sum_weights for w in weights]
+
+        weighted_avg = sum([weights[idx]*s for idx, s in enumerate(success)])
+
+
         if return_result:
-            return success
+            return success, weighted_avg
         else:
             plt.figure()
             plt.plot(gl_mote_range, success)
@@ -391,20 +400,39 @@ def plot_all_reliabilities():
     :return:
     """
     rel = []
+    avg = []
     for filename in get_all_files(gl_dump_path):
         p = BasicProcessor(filename=filename)
         p.correct_timeline(clean_all=False)
         p.plot_timeline()
-        rel.append(p.plot_reliability(return_result=True))
+        r, w = p.plot_reliability(return_result=True)
+        rel.append(r)
+        avg.append(w)
 
-    plt.figure()
-    plt.boxplot(rel, showmeans=True)
+    plt.figure(figsize=(7.5, 3.5))
+    bp = plt.boxplot(rel, flierprops={'linewidth':1.5})
+
+    plt.hlines(0.95, xmin=0, xmax=9, linestyles='--', linewidth=1, label='0.95')
+    x_axis = list(range(9))
+    labels = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
+    plt.plot(x_axis[1:], avg, 'rs')
+
+    plt.xticks(x_axis, labels)
+    plt.grid(True)
+    plt.ylim((0.35, 1.1))
+    plt.legend(loc=4)
+
+    plt.ylabel('PDR')
+
+    set_box_plot(bp)
+
+    # plt.savefig('../../sgpaper/pics/rel3_mikhail.pdf', format='pdf', bbox='tight')
     plt.show()
 
 
 if __name__ == '__main__':
-    plot_all_delays()
-    # plot_all_reliabilities()
+    # plot_all_delays()
+    plot_all_reliabilities()
     # plot_normalized_delay_per_application()
     # plot_all_retx()
 

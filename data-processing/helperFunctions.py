@@ -207,6 +207,8 @@ def set_box_plot(bp):
         setp(w, color='blue', linewidth=1.5)
     for m in bp['medians']:
         setp(m, color='red', linewidth=1.5)
+    for o in bp['fliers']:
+        setp(o, markersize=8, markeredgewidth=1.5)
 
 
 def set_box_plot_diff(bp):
@@ -257,6 +259,7 @@ def get_all_files(path, folders=None):
 def set_figure_parameters():
     rcParams.update(
         {'figure.autolayout': True, 'font.size': 14, 'font.family': 'serif', 'font.sans-serif': ['Helvetica']})
+
 
 if __name__ == '__main__':
     '''

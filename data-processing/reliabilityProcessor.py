@@ -112,7 +112,7 @@ gl_legend_map = {0: 'I',
 
 def plot_delay_cdf():
 
-    plt.figure(figsize=(7.5, 5))
+    plt.figure(figsize=(7.5, 4))
 
     steps = [0.5, 1, 2, 5, 10]
 
@@ -144,7 +144,7 @@ def plot_delay_cdf():
     plt.grid(True)
 
     plt.xlabel('Deadline, s')
-    plt.ylabel('Packet delivery ratio')
+    plt.ylabel('Packet ratio')
 
     plt.savefig('../../sgpaper/pics/cdf.pdf', format='pdf', bbox='tight')
 
