@@ -19,7 +19,7 @@ from pylab import plot, show, savefig, xlim, figure, \
 from logProcessor import LogProcessor
 from helperFunctions import find_latest_dump, set_box_plot, set_figure_parameters, get_all_files
 from topologyProcessor import TopologyLogProcessor
-# import statsmodels.api as sm
+import csv
 
 
 set_figure_parameters()
@@ -145,19 +145,21 @@ class BasicProcessor(LogProcessor):
             if len(mote) == 0:
                 continue
 
-            last_seen_pkt = None
+            highest_seen_sqn_pkt = None
             seqn_correction = 0
 
             for pkt in mote:
-                if last_seen_pkt is None:
-                    last_seen_pkt = pkt
+                if highest_seen_sqn_pkt is None:
+                    highest_seen_sqn_pkt = pkt
 
                 pkt.seqN += seqn_correction
 
-                if (pkt.seqN < last_seen_pkt.seqN) and (pkt.asn_first > last_seen_pkt.asn_first):
+                if (pkt.seqN < highest_seen_sqn_pkt.seqN) and (pkt.asn_first > highest_seen_sqn_pkt.asn_first):
                     print('Mote %d, reset detected at %d' % (idx+1, pkt.asn_first))
                     pkt.seqN -= seqn_correction  # previous correction was falsely done, cancel it
-                    seqn_correction = last_seen_pkt.seqN
+
+                    seqn_correction = highest_seen_sqn_pkt.seqN
+
                     pkt.seqN += seqn_correction
                     if clean_all:
                         break
@@ -165,21 +167,24 @@ class BasicProcessor(LogProcessor):
                 if clean_all:
                     motes_clean[idx].append(pkt)
 
-                last_seen_pkt = pkt
+                if pkt.seqN > highest_seen_sqn_pkt.seqN:
+                    highest_seen_sqn_pkt = pkt
 
         if clean_all:
             for mote in motes_clean:
                 self.packets += mote
 
-    def plot_timeline(self):
+    def plot_timeline(self, writer=None):
 
         motes = self.sort_by_motes()
 
         plt.figure()
 
         for idx, mote in enumerate(motes):
+            if not writer is None:
+                writer.writerow([pkt.seqN for pkt in mote])
             plt.plot([pkt.seqN for pkt in mote], [pkt.asn_first for pkt in mote], label='#%d' % (idx+1, ))
-            # plt.plot([pkt.asn_first for pkt in mote])
+            # plt.plot([pkt.seqN for pkt in mote], label='#%d' % (idx + 1,))
 
         plt.xlabel('seqN')
         plt.ylabel('asn')
@@ -215,13 +220,12 @@ class BasicProcessor(LogProcessor):
             seen_sqns = set([pkt.seqN for pkt in mote])
             max_sqn = max(seen_sqns)
             min_sqn = min(seen_sqns)
-            count_loss = 0
-            for i in range(min_sqn, max_sqn+1):
-                if not i in seen_sqns:
-                    count_loss += 1
-            pdr = (max_sqn - min_sqn - count_loss)/(max_sqn-min_sqn)
+            pdr = len(seen_sqns)/(max_sqn-min_sqn+1)
+
             success.append(pdr)
             weights.append(max_sqn-min_sqn)
+
+            print('Max seqn: %d, min seqn: %d, distinct packets: %d' % (max_sqn, min_sqn, len(seen_sqns)))
             print('PDR: %.2f' % pdr)
 
         print('Average PDR: %.2f' % np.mean(success))
@@ -401,21 +405,26 @@ def plot_all_reliabilities():
     """
     rel = []
     avg = []
+    f = open('seqn.csv', 'a+')
+    wr = csv.writer(f, quoting=csv.QUOTE_ALL)
+
     for filename in get_all_files(gl_dump_path):
         p = BasicProcessor(filename=filename)
         p.correct_timeline(clean_all=False)
-        p.plot_timeline()
+        p.plot_timeline(writer=wr)
         r, w = p.plot_reliability(return_result=True)
         rel.append(r)
         avg.append(w)
 
+    f.close()
+
     plt.figure(figsize=(7.5, 3.5))
-    bp = plt.boxplot(rel, flierprops={'linewidth':1.5})
+    bp = plt.boxplot(rel, flierprops={'linewidth':1.5}, showmeans=True)
 
     plt.hlines(0.95, xmin=0, xmax=9, linestyles='--', linewidth=1, label='0.95')
     x_axis = list(range(9))
     labels = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
-    plt.plot(x_axis[1:], avg, 'rs')
+    # plt.plot(x_axis[1:], avg, 'rs')
 
     plt.xticks(x_axis, labels)
     plt.grid(True)
@@ -432,8 +441,8 @@ def plot_all_reliabilities():
 
 if __name__ == '__main__':
     # plot_all_delays()
-    # plot_all_reliabilities()
-    plot_normalized_delay_per_application()
+    plot_all_reliabilities()
+    # plot_normalized_delay_per_application()
     # plot_all_retx()
 
 
