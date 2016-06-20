@@ -13,7 +13,7 @@ from datetime import timedelta
 import json
 
 
-gl_mote_range = range(1, 14)
+gl_mote_range = range(1, 34)
 gl_dump_path = os.getcwd() + '/../'
 # gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
 gl_image_path = os.getenv("HOME") + ''
@@ -24,10 +24,10 @@ class LogProcessor:
     Defines functionality for processing a dump of WSN packets defined by MeasurementPacket class
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename, format = "SMARTGRID"):
         print('Creating a processor for %s' % filename)
         self.filename = filename  # we only store the filename
-        self.packets = self.load_packets()
+        self.packets = self.load_packets(format)
 
     def yield_line(self):
         """
@@ -38,7 +38,7 @@ class LogProcessor:
             for line in f:
                 yield line
 
-    def load_packets(self):
+    def load_packets(self, format):
         """
         Load all packets: dangerous if file size is ~ Gbytes
         :return: packets list
@@ -46,11 +46,18 @@ class LogProcessor:
         packets = []
         for line in self.yield_line():
 
-            lines = line.split('\t')
-            line = lines[0]
-            timestamp = lines[1].split('\n')[0]
+            if format == "WHITENING":
+                lines = line.split("] ")
+                line = lines[0] + "]"
 
-            pkt = TestbedPacket.load_data(line, timestamp)
+                timestamp = lines[1].split('\n')[0]
+            else:
+                lines = line.split('\t')
+                line = lines[0]
+
+                timestamp = lines[1].split('\n')[0]
+
+            pkt = TestbedPacket.load_data(line, timestamp, format)
 
             packets.append(pkt)
 

@@ -10,21 +10,18 @@ import os
 import matplotlib.pyplot as plt
 from os.path import isfile, join
 import numpy as np
-import sys
-import datetime
 from matplotlib import gridspec
-from pylab import plot, show, savefig, xlim, figure, \
-                hold, ylim, legend, boxplot, setp, axes, grid
+from pylab import show, savefig, figure, \
+                ylim, boxplot, grid
 
 from logProcessor import LogProcessor
-from helperFunctions import find_latest_dump, set_box_plot, set_figure_parameters, get_all_files
-from topologyProcessor import TopologyLogProcessor
+from helperFunctions import set_box_plot, set_figure_parameters, get_all_files
 import csv
 
 
 set_figure_parameters()
 
-gl_mote_range = range(1, 14)
+gl_mote_range = range(1, 33)
 # gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
 
 gl_dump_path = os.getcwd() + '/../'
@@ -73,7 +70,6 @@ class BasicProcessor(LogProcessor):
         plt.figure()
         plt.hist(retx)
 
-
     def plot_delay(self, addr):
         """
 
@@ -82,8 +78,6 @@ class BasicProcessor(LogProcessor):
         plt.figure()
         plt.boxplot(self.get_delays(addr))
         plt.grid(True)
-
-
 
     def plot_delays(self):
         """
@@ -114,7 +108,6 @@ class BasicProcessor(LogProcessor):
         for addr in motes:
             delays += self.get_delays(addr, normalized)
 
-        # return means
         return delays
 
     def plot_avg_hops(self):
@@ -424,7 +417,6 @@ def plot_all_reliabilities():
     plt.hlines(0.95, xmin=0, xmax=9, linestyles='--', linewidth=1, label='0.95')
     x_axis = list(range(9))
     labels = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
-    # plt.plot(x_axis[1:], avg, 'rs')
 
     plt.xticks(x_axis, labels)
     plt.grid(True)
@@ -439,9 +431,22 @@ def plot_all_reliabilities():
     plt.show()
 
 
+def test_multichannel():
+    p = BasicProcessor(filename="../../../whitening/HS_optimization/Data/test/tsch_dump_2016-06-19_15:49:24",
+                       format="WHITENING")
+    p.plot_avg_hops()
+    p.plot_delays()
+
+    # p.correct_timeline(clean_all=False)
+    # p.plot_reliability()
+
+    plt.show()
+
+
 if __name__ == '__main__':
     # plot_all_delays()
-    plot_all_reliabilities()
+    # plot_all_reliabilities()
+    test_multichannel()
     # plot_normalized_delay_per_application()
     # plot_all_retx()
 

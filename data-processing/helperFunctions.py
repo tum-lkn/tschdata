@@ -4,26 +4,21 @@ Helper functions and basic data structures for processing of logged packet.
 __author__ = 'Mikhail Vilgelm'
 
 import pickle
-import pprint
 import unittest
 import numpy as np
 import ast
-import os
-import math
 import scipy.stats as st
-import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
-from pylab import plot, show, savefig, xlim, figure, \
-    hold, ylim, legend, boxplot, setp, axes, grid
+from pylab import setp
 
-import os, re
+import os
 from os.path import isfile, join
 from matplotlib import rcParams
 
 gl_t_slot = 0.015  # in seconds
 
-gl_hopping_sequence = [5,9,12,7,15,4,14,11,8,0,1,2,13,3,6,10]
+gl_hopping_sequence = [5, 9, 12, 7, 15, 4, 14, 11, 8, 0, 1, 2, 13, 3, 6, 10]
 gl_hopping_sequence = [f+11 for f in gl_hopping_sequence]
+
 
 class TestbedPacket:
 
@@ -37,6 +32,11 @@ class TestbedPacket:
             return MeasurementPacket(asn_first=data[6:11], asn_last=data[1:6],
                                      src_addr=int(data[0]), seqN=data[11:13],
                                      hop_info=data[14:], timestamp=timestamp)
+        if format == 'WHITENING':
+            data = ast.literal_eval(data)
+            return MeasurementPacket(asn_first=data[5:10], asn_last=data[0:5],
+                                     src_addr=None, seqN=data[10:12],
+                                     hop_info=data[13:], timestamp=timestamp)
         elif format == 'AIRCRAFT':
             return StringPacket(data)
 
@@ -49,10 +49,8 @@ class StringPacket(TestbedPacket):
     def __init__(self, data):
         self.data = data
 
-
     def dump_compressed(self):
         return self.data
-
 
 
 class MeasurementPacket(TestbedPacket):
@@ -70,9 +68,9 @@ class MeasurementPacket(TestbedPacket):
         """
         if 'timestamp' in kwargs.keys():
             self.timestamp = kwargs['timestamp']
-        # print(kwargs['asn_first'])
+
         self.asn_first = self.list_to_int(kwargs['asn_first'])
-        # print(self.asn_first)
+
         self.asn_last = self.list_to_int(kwargs['asn_last'])
 
         self.seqN = self.list_to_int(kwargs['seqN'])
@@ -161,6 +159,7 @@ class MeasurementPacket(TestbedPacket):
         RSSIs = [hop['rssi'] for hop in self.hop_info]
         return RSSIs
 
+
 class TestTestbedPackets(unittest.TestCase):
     """
     Unit tests
@@ -217,8 +216,8 @@ def set_box_plot_diff(bp):
             setp(b, color='blue', linewidth=1.5)
         else:
             setp(b, color='red', linewidth=1.5)
+
     for idx, c in enumerate(bp['caps']):
-        #if idx%2 == 1:
         setp(c, color='black', linewidth=1.5)
 
     for idx, w in enumerate(bp['whiskers']):
