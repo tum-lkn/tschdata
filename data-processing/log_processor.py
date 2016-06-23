@@ -141,6 +141,30 @@ class LogProcessor:
 
         f.close()
 
+    def get_avg_hops(self, addr):
+        """
+        Calculate average number of hops
+        :return:
+        """
+
+        pkt_hops = []
+        for pkt in self.packets:
+            if pkt.src_addr != addr:
+                continue
+
+            if pkt.delay < 0:
+                print(pkt.asn_last)
+                print(pkt.asn_first)
+                # erroneous packet
+                continue
+
+            num_hops = 0
+            for hop in pkt.hop_info:
+                if hop['addr'] != 0:
+                    num_hops += 1
+            pkt_hops.append(num_hops)
+
+        return pkt_hops
 
 
 if __name__ == '__main__':

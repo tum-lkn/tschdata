@@ -14,7 +14,7 @@ from matplotlib import gridspec
 from pylab import show, savefig, figure, \
                 ylim, boxplot, grid
 
-from logProcessor import LogProcessor
+from log_processor import LogProcessor
 from helperFunctions import set_box_plot, set_figure_parameters, get_all_files
 import csv
 
@@ -34,31 +34,6 @@ class BasicProcessor(LogProcessor):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def get_avg_hops(self, addr):
-        """
-        Calculate average number of hops
-        :return:
-        """
-
-        pkt_hops = []
-        for pkt in self.packets:
-            if pkt.src_addr != addr:
-                continue
-
-            if pkt.delay < 0:
-                print(pkt.asn_last)
-                print(pkt.asn_first)
-                # erroneous packet
-                continue
-
-            num_hops = 0
-            for hop in pkt.hop_info:
-                if hop['addr'] != 0:
-                    num_hops += 1
-            pkt_hops.append(num_hops)
-
-        return pkt_hops
-
     def plot_retx(self):
 
         retx = []
@@ -70,7 +45,7 @@ class BasicProcessor(LogProcessor):
         plt.figure()
         plt.hist(retx)
 
-    def plot_delay(self, addr):
+    def plot_delay_per_mote(self, addr):
         """
 
         :return:
@@ -233,15 +208,7 @@ class BasicProcessor(LogProcessor):
             return success, weighted_avg
         else:
             plt.figure()
-            plt.plot(gl_mote_range, success)
-
-
-
-
-    def plot_app_drop_rate(self):
-        pass
-        for mote in self.sort_by_motes():
-            pass
+            plt.plot([mote_id for idx, mote_id in enumerate(gl_mote_range) if idx % 2 == 0], success)
 
 
 def plot_normalized_delay_per_application():
@@ -432,13 +399,16 @@ def plot_all_reliabilities():
 
 
 def test_multichannel():
-    p = BasicProcessor(filename="../../../whitening/HS_optimization/Data/test/tsch_dump_2016-06-19_15:49:24",
+    p = BasicProcessor(filename="../../../whitening/WHData/Data/triagnosys/1.log",
                        format="WHITENING")
+
     p.plot_avg_hops()
     p.plot_delays()
 
+    p.plot_timeline()
+
     # p.correct_timeline(clean_all=False)
-    # p.plot_reliability()
+    p.plot_reliability()
 
     plt.show()
 

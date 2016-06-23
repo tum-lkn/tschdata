@@ -7,11 +7,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib import gridspec
-from basicProcessor import set_box_plot
+from basic_processor import set_box_plot
 
 from matplotlib import rcParams
 rcParams.update({'figure.autolayout': True})
-from logProcessor import LogProcessor
+from log_processor import LogProcessor
 from helperFunctions import set_figure_parameters
 
 
@@ -143,7 +143,7 @@ class Schedule:
 gl_default_schedule = Schedule(num_slots=gl_num_active_slots, num_off=gl_num_off_slots, num_serial=gl_num_serial_slots)
 
 
-class DelayLogProcessor(LogProcessor):
+class AdvDelayProcessor(LogProcessor):
 
     def __init__(self, **kwargs):
         if 'schedule' in kwargs.keys():
@@ -190,7 +190,6 @@ class DelayLogProcessor(LogProcessor):
 
     def get_all_paths_w_num_pkts(self):
         '''
-
         :return: a hashmap of path to delay array values
         '''
         seen_paths = set()
@@ -356,7 +355,7 @@ def plot_all_path_delays(shared=False):
             # ignore medium interference case
             continue
 
-        p = DelayLogProcessor(filename=folder+filename, schedule=sched)
+        p = AdvDelayProcessor(filename=folder + filename, schedule=sched)
 
         r0, m0 = p.plot_path_delay()
 
@@ -401,7 +400,7 @@ def plot_intercepting_path_delays(ax, shared=False):
         if idx > 0:
             set_id -= 1
 
-        pr = DelayLogProcessor(filename=folder+filename, schedule=sched)
+        pr = AdvDelayProcessor(filename=folder + filename, schedule=sched)
 
         r, m = pr.plot_path_delay()
 

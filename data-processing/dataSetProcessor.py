@@ -8,9 +8,9 @@ import numpy
 from scipy.misc import imread
 import matplotlib.cbook as cbook
 
-from logProcessor import LogProcessor
+from log_processor import LogProcessor
 from operator import itemgetter
-from topologyProcessor import TopologyLogProcessor
+from topology_processor import TopologyLogProcessor
 
 gl_dump_path = os.getcwd() + '/../'
 gl_image_path = os.getenv("HOME") + ''

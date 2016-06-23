@@ -7,10 +7,10 @@ from functools import reduce
 import matplotlib.pyplot as plt
 import operator
 from matplotlib import gridspec
-from basicProcessor import BasicProcessor
+from basic_processor import BasicProcessor
 
 from helperFunctions import set_figure_parameters, get_all_files
-from delayProcessor import DelayLogProcessor
+from adv_delay_processor import AdvDelayProcessor
 
 
 set_figure_parameters()
@@ -23,7 +23,7 @@ gl_best_links = '../matlab-murat/destinations.csv'
 gl_reliability = '../matlab-murat/reliability.csv'
 
 
-class ReliabilityProcessor():
+class AdvReliabilityProcessor():
 
     def __init__(self):
         # read the reliability data
@@ -79,7 +79,7 @@ class ReliabilityProcessor():
         return path_rel
 
 
-gl_reliability_map = ReliabilityProcessor()
+gl_reliability_map = AdvReliabilityProcessor()
 
 gl_data_set = {'tdma/1-1-no_interference.log': 0,
                'tdma/2-1-interference.log': 1,
@@ -155,7 +155,7 @@ def delay_reliabiltiy_correlation(logfile):
     print(logfile.split('../')[-1])
     ds = gl_data_set[logfile.split('../')[-1]]
 
-    dp = DelayLogProcessor(filename=logfile)
+    dp = AdvDelayProcessor(filename=logfile)
     paths, _ = dp.get_all_paths_w_delay()
 
     path_rel_df = pd.DataFrame(index=list(range(len(paths))), columns=['path', 'reliability', 'delay'])
