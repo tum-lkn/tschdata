@@ -9,7 +9,7 @@ import operator
 from matplotlib import gridspec
 from basic_processor import BasicProcessor
 
-from helperFunctions import set_figure_parameters, get_all_files
+from toolbox import set_figure_parameters, get_all_files
 from adv_delay_processor import AdvDelayProcessor
 
 

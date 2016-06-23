@@ -12,7 +12,7 @@ from basic_processor import set_box_plot
 from matplotlib import rcParams
 rcParams.update({'figure.autolayout': True})
 from log_processor import LogProcessor
-from helperFunctions import set_figure_parameters
+from toolbox import set_figure_parameters
 
 
 set_figure_parameters()

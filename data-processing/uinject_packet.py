@@ -5,14 +5,7 @@ __author__ = 'Mikhail Vilgelm'
 
 import pickle
 import unittest
-import numpy as np
 import ast
-import scipy.stats as st
-from pylab import setp
-
-import os
-from os.path import isfile, join
-from matplotlib import rcParams
 
 gl_t_slot = 0.015  # in seconds
 
@@ -21,7 +14,6 @@ gl_hopping_sequence = [f+11 for f in gl_hopping_sequence]
 
 
 class TestbedPacket:
-
     @classmethod
     def load_data(cls, data, timestamp, format='SMARTGRID'):
         """
@@ -74,13 +66,13 @@ class MeasurementPacket(TestbedPacket):
         self.asn_last = self.list_to_int(kwargs['asn_last'])
 
         self.seqN = self.list_to_int(kwargs['seqN'])
-        num_hops = int(len(kwargs['hop_info'])/4)  # assume 4 bytes per hop entry
+        num_hops = int(len(kwargs['hop_info']) / 4)  # assume 4 bytes per hop entry
         self.hop_info = []
-        for i in [4*x for x in range(num_hops)]:
+        for i in [4 * x for x in range(num_hops)]:
             hop_info_temp = {'addr': int(kwargs['hop_info'][i]),
-                                  'retx': int(kwargs['hop_info'][i+1]),
-                                  'freq': int(kwargs['hop_info'][i+2]),
-                                  'rssi': int(kwargs['hop_info'][i+3])}
+                             'retx': int(kwargs['hop_info'][i + 1]),
+                             'freq': int(kwargs['hop_info'][i + 2]),
+                             'rssi': int(kwargs['hop_info'][i + 3])}
             if hop_info_temp['addr'] != 0:
                 self.hop_info.append(hop_info_temp)
 
@@ -118,13 +110,13 @@ class MeasurementPacket(TestbedPacket):
         :param l:
         :return:
         """
-        temp = [(256**idx)*int(x) for idx, x in enumerate(l)]
+        temp = [(256 ** idx) * int(x) for idx, x in enumerate(l)]
         temp[0] = l[0]
         return sum(temp)
 
     @property
     def delay(self):
-        return (self.asn_last - self.asn_first)*gl_t_slot
+        return (self.asn_last - self.asn_first) * gl_t_slot
 
     def num_hops(self):
         num_hops = 0
@@ -139,7 +131,7 @@ class MeasurementPacket(TestbedPacket):
             return tuple(path + [1])
         else:
             return tuple(path)
-    
+
     def get_channels(self):
         channels = [hop['freq'] for hop in self.hop_info]
         return channels
@@ -148,7 +140,7 @@ class MeasurementPacket(TestbedPacket):
         first_hop_info = self.hop_info[-1]
         assert (first_hop_info['addr'] != 0)
         ch = first_hop_info['freq']
-        asn_tx = gl_hopping_sequence.index(ch)-1
+        asn_tx = gl_hopping_sequence.index(ch) - 1
         time = asn_tx - (self.asn_first % 16)
         if time >= 0:
             return time
@@ -185,88 +177,3 @@ class TestTestbedPackets(unittest.TestCase):
         test_pkt = '[2, 1, 65, 1, 0, 0, 239, 64, 1, 0, 0, 234, 0, 0, 2, 3, 23, 38, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]'
         pkt = TestbedPacket.load_data(test_pkt)
         print(pkt.serialize())
-
-
-def find_latest_dump(path):
-    mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime
-    return list(sorted(os.listdir(path), key=mtime))[-1]
-
-
-def set_box_plot(bp):
-    """
-    Set parameters of the given boxplot
-    :param bp:
-    :return:
-    """
-    for b in bp['boxes']:
-        setp(b, color='blue', linewidth=1.5)
-    for c in bp['caps']:
-        setp(c, color='black', linewidth=1.5)
-    for w in bp['whiskers']:
-        setp(w, color='blue', linewidth=1.5)
-    for m in bp['medians']:
-        setp(m, color='red', linewidth=1.5)
-    for o in bp['fliers']:
-        setp(o, markersize=8, markeredgewidth=1.5)
-
-
-def set_box_plot_diff(bp):
-    for idx, b in enumerate(bp['boxes']):
-        if idx%2 == 1:
-            setp(b, color='blue', linewidth=1.5)
-        else:
-            setp(b, color='red', linewidth=1.5)
-
-    for idx, c in enumerate(bp['caps']):
-        setp(c, color='black', linewidth=1.5)
-
-    for idx, w in enumerate(bp['whiskers']):
-        if idx % 2 == 1:
-            setp(w, color='blue', linewidth=1.5)
-        else:
-            setp(w, color='red', linewidth=1.5)
-    for idx, m in enumerate(bp['medians']):
-        # if idx%2 == 1:
-        setp(m, color='red', linewidth=1.5)
-
-
-def mean_confidence_interval(data, confidence=0.95):
-    a = 1.0*np.array(data)
-    n = len(a)
-    m, se = np.mean(a), st.sem(a)
-    h = se * st.t._ppf((1+confidence)/2., n-1)
-    return h
-
-
-def get_all_files(path, folders=None):
-
-    files = []
-
-    if folders is None:
-        folders = [path + 'tdma/', path + 'shared/']
-    else:
-        folders = [path + folder + '/' for folder in folders]
-
-    for folder in folders:
-        temp = [f for f in os.listdir(folder) if isfile(join(folder, f))]
-        temp = sorted(temp)
-        files += [folder+f for f in temp]
-
-    return files
-
-
-def set_figure_parameters():
-    rcParams.update(
-        {'figure.autolayout': True, 'font.size': 14, 'font.family': 'serif', 'font.sans-serif': ['Helvetica']})
-
-
-if __name__ == '__main__':
-    '''
-    Testing
-    '''
-    unittest.main()
-
-
-
-
-

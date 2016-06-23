@@ -15,7 +15,7 @@ from pylab import show, savefig, figure, \
                 ylim, boxplot, grid
 
 from log_processor import LogProcessor
-from helperFunctions import set_box_plot, set_figure_parameters, get_all_files
+from toolbox import set_box_plot, set_figure_parameters, get_all_files
 import csv
 
 
@@ -194,9 +194,9 @@ class BasicProcessor(LogProcessor):
             weights.append(max_sqn-min_sqn)
 
             print('Max seqn: %d, min seqn: %d, distinct packets: %d' % (max_sqn, min_sqn, len(seen_sqns)))
-            print('PDR: %.2f' % pdr)
+            print('PDR: %.5f' % pdr)
 
-        print('Average PDR: %.2f' % np.mean(success))
+        print('Average PDR: %.5f' % np.mean(success))
 
         sum_weights = sum(weights)
         weights = [w/sum_weights for w in weights]
@@ -207,8 +207,9 @@ class BasicProcessor(LogProcessor):
         if return_result:
             return success, weighted_avg
         else:
-            plt.figure()
-            plt.plot([mote_id for idx, mote_id in enumerate(gl_mote_range) if idx % 2 == 0], success)
+            # plt.figure()
+            mote_range = [mote_id for idx, mote_id in enumerate(gl_mote_range) if idx % 2 == 0]
+            plt.plot(success, label=self.filename.split("/")[-1].split(".log")[0], marker="^")
 
 
 def plot_normalized_delay_per_application():
@@ -399,17 +400,25 @@ def plot_all_reliabilities():
 
 
 def test_multichannel():
-    p = BasicProcessor(filename="../../../whitening/WHData/Data/triagnosys/1.log",
+
+    set_figure_parameters()
+    plt.figure()
+
+    for i in range(1, 5):
+        p = BasicProcessor(filename="../../../whitening/WHData/Data/triagnosys/%d.log" % i,
                        format="WHITENING")
 
-    p.plot_avg_hops()
-    p.plot_delays()
+        # p.plot_avg_hops()
+        # p.plot_delays()
 
-    p.plot_timeline()
+        # p.plot_timeline()
 
-    # p.correct_timeline(clean_all=False)
-    p.plot_reliability()
+        # p.correct_timeline(clean_all=False)
+        p.plot_reliability()
 
+    plt.ylim((0.0, 1.1))
+    plt.grid(True)
+    plt.legend()
     plt.show()
 
 
