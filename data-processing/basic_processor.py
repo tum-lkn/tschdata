@@ -30,11 +30,18 @@ gl_image_path = os.getenv("HOME") + ''
 
 
 class BasicProcessor(LogProcessor):
+    """
+    Defines the basic analysis tools and plots of the log: retransmissions, delay, reliabiltiy...
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def plot_retx(self):
+        """
+        Plot the distribution of the retransmission counter for all packets
+        :return:
+        """
 
         retx = []
         for pkt in self.packets:
@@ -47,7 +54,7 @@ class BasicProcessor(LogProcessor):
 
     def plot_delay_per_mote(self, addr):
         """
-
+        Plot the delay distribution for motes
         :return:
         """
         plt.figure()
@@ -56,7 +63,7 @@ class BasicProcessor(LogProcessor):
 
     def plot_delays(self):
         """
-
+        Plot delay distribution for all motes
         :return:
         """
         plt.figure()
@@ -76,7 +83,7 @@ class BasicProcessor(LogProcessor):
 
     def get_all_delays(self, motes=gl_mote_range, normalized=False):
         """
-
+        Retrieve all delays sorted by the source mote id
         :return:
         """
         delays = []
@@ -87,7 +94,7 @@ class BasicProcessor(LogProcessor):
 
     def plot_avg_hops(self):
         """
-
+        Plot the distribution of the number of hops for all packets for all motes.
         :return:
         """
 
@@ -102,47 +109,14 @@ class BasicProcessor(LogProcessor):
         plt.ylabel('hops')
         plt.xlabel('mote #')
 
-    def correct_timeline(self, clean_all=False):
-
-        motes = self.sort_by_motes()
-
-        if clean_all:
-            motes_clean = [[] for _ in gl_mote_range]
-
-        for idx, mote in enumerate(motes):
-            if len(mote) == 0:
-                continue
-
-            highest_seen_sqn_pkt = None
-            seqn_correction = 0
-
-            for pkt in mote:
-                if highest_seen_sqn_pkt is None:
-                    highest_seen_sqn_pkt = pkt
-
-                pkt.seqN += seqn_correction
-
-                if (pkt.seqN < highest_seen_sqn_pkt.seqN) and (pkt.asn_first > highest_seen_sqn_pkt.asn_first):
-                    print('Mote %d, reset detected at %d' % (idx+1, pkt.asn_first))
-                    pkt.seqN -= seqn_correction  # previous correction was falsely done, cancel it
-
-                    seqn_correction = highest_seen_sqn_pkt.seqN
-
-                    pkt.seqN += seqn_correction
-                    if clean_all:
-                        break
-
-                if clean_all:
-                    motes_clean[idx].append(pkt)
-
-                if pkt.seqN > highest_seen_sqn_pkt.seqN:
-                    highest_seen_sqn_pkt = pkt
-
-        if clean_all:
-            for mote in motes_clean:
-                self.packets += mote
-
     def plot_timeline(self, writer=None):
+        """
+        Plot a timeline of the measurements for every mote: ASN of the packet generation vs.
+        its application sequence number. Can be used to check whether any mote died during the measurements or
+        was reset.
+        :param writer: write the sequence numbers to the file
+        :return:
+        """
 
         motes = self.sort_by_motes()
 
@@ -160,6 +134,10 @@ class BasicProcessor(LogProcessor):
         plt.grid(True)
 
     def plot_num_packets(self):
+        """
+        Plot number of received packets for every mote.
+        :return:
+        """
 
         motes = self.sort_by_motes()
 
@@ -173,6 +151,11 @@ class BasicProcessor(LogProcessor):
         plt.grid(True)
 
     def plot_reliability(self, return_result=False):
+        """
+        Plot application layer reliability for all motes.
+        :param return_result:
+        :return:
+        """
 
         motes = self.sort_by_motes()
 
@@ -283,6 +266,10 @@ def plot_normalized_delay_per_application():
 
 
 def plot_all_retx():
+    """
+
+    :return:
+    """
     for folder in ['../tdma/', '../shared/']:
         files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
         files = sorted(files)
@@ -400,6 +387,10 @@ def plot_all_reliabilities():
 
 
 def test_multichannel():
+    """
+    Test basic performance parameters for whitening measurements
+    :return:
+    """
 
     set_figure_parameters()
     plt.figure()

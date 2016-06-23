@@ -19,7 +19,8 @@ gl_image_path = os.getenv("HOME") + ''
 
 class LogProcessor:
     """
-    Defines functionality for processing a dump of WSN packets defined by MeasurementPacket class
+    Defines the main functionality for processing a dump of WSN packets defined by MeasurementPacket class.
+    Only basic functionality is contained in this class, plotting and advanced functions are in the subclasses
     """
 
     def __init__(self, filename, format = "SMARTGRID"):
@@ -164,6 +165,51 @@ class LogProcessor:
 
         return pkt_hops
 
+    def correct_timeline(self, clean_all=False):
+        """
+        Correct the resetting of the application sequence numbers (caused by the resetting of the motes).
+        Generation instants (ASN) is used for detecting the reset.
+        :param clean_all: do not consider any packets after the first reset
+        :return:
+        """
+
+        motes = self.sort_by_motes()
+
+        if clean_all:
+            motes_clean = [[] for _ in gl_mote_range]
+
+        for idx, mote in enumerate(motes):
+            if len(mote) == 0:
+                continue
+
+            highest_seen_sqn_pkt = None
+            seqn_correction = 0
+
+            for pkt in mote:
+                if highest_seen_sqn_pkt is None:
+                    highest_seen_sqn_pkt = pkt
+
+                pkt.seqN += seqn_correction
+
+                if (pkt.seqN < highest_seen_sqn_pkt.seqN) and (pkt.asn_first > highest_seen_sqn_pkt.asn_first):
+                    print('Mote %d, reset detected at %d' % (idx+1, pkt.asn_first))
+                    pkt.seqN -= seqn_correction  # previous correction was falsely done, cancel it
+
+                    seqn_correction = highest_seen_sqn_pkt.seqN
+
+                    pkt.seqN += seqn_correction
+                    if clean_all:
+                        break
+
+                if clean_all:
+                    motes_clean[idx].append(pkt)
+
+                if pkt.seqN > highest_seen_sqn_pkt.seqN:
+                    highest_seen_sqn_pkt = pkt
+
+        if clean_all:
+            for mote in motes_clean:
+                self.packets += mote
 
 if __name__ == '__main__':
 
