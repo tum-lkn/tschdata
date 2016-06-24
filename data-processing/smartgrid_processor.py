@@ -21,90 +21,11 @@ class DataSetProcessor(LogProcessor):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def get_total_packets(self):
-        tot_packets= self.packets
-        return len(tot_packets)
-
-    def get_total_duration(self):
-        t0 = self.packets[0].asn_first
-        t1 = self.packets[-1].asn_last
-        return (t1-t0)*0.015  # in seconds
-
-    def get_seen_nodes(self):
-        seen_nodes = []
-        node_occurrences = []
-
-        for pkt in self.packets:
-            for node in pkt.get_path(full=True):
-                if not (node in seen_nodes):
-                    seen_nodes.append(node)
-                    node_occurrences.append(1)
-                else:
-                    node_idx = seen_nodes.index(node)
-                    node_occurrences[node_idx] += 1
-        dict = {}
-        for node in seen_nodes:
-            dict[node] = node_occurrences[seen_nodes.index(node)]
-
-        return dict
-
-    def get_seen_channels(self):
-        seen_channels = []
-        channels_occurrences = []
-
-        for pkt in self.packets:
-            for channel in pkt.get_channels():
-                if not (channel in seen_channels):
-                    seen_channels.append(channel)
-                    channels_occurrences.append(1)
-                else:
-                    channel_idx = seen_channels.index(channel)
-                    channels_occurrences[channel_idx] += 1
-        dict = {}
-        for channel in seen_channels:
-            dict[channel] = channels_occurrences[seen_channels.index(channel)]
-        return dict
-
-    def get_seen_links(self,type="occurrences"):
-        seen_links = []
-
-        if type is "occurrences":
-            link_occurrences = []
-
-            for pkt in self.packets:
-                path = pkt.get_path(full=True)
-                for idx, node in enumerate(path):
-                    if idx != len(path) - 1:
-                        link = [path[idx], path[idx + 1]]
-                        if not (link in seen_links):
-                            seen_links.append(link)
-                            link_occurrences.append(1)
-                        else:
-                            link_idx = seen_links.index(link)
-                            link_occurrences[link_idx] += 1
-
-            return seen_links, link_occurrences
-
-        elif type is "RSSI":
-            link_rssi = []
-
-            for pkt in self.packets:
-                path = pkt.get_path(full=True)
-                RSSIs = pkt.get_rssi()
-                for idx, node in enumerate(path):
-                    if idx != len(path) - 1:
-                        link = [path[idx], path[idx + 1]]
-                        if not (link in seen_links):
-                            seen_links.append(link)
-                            link_rssi.append([RSSIs[idx]])
-                        else:
-                            link_idx = seen_links.index(link)
-                            link_rssi[link_idx].append(RSSIs[idx])
-            avg_rssi=[numpy.mean(rssis_per_link) for rssis_per_link in link_rssi]
-            return seen_links,avg_rssi
-
 
 if __name__ == '__main__':
+
+# Smartgrid Data processing
+
 
     folders= ('tdma','shared')
     files= ('1-1-no_interference','2-1-interference','3-1-induced_interference','4-1-high_load')
@@ -174,13 +95,13 @@ if __name__ == '__main__':
             plt.imshow(img)#, zorder=0, extent=[0, 24.0, -1, 2.0])
 
             if j is 2:
-                p.plot_colormap(nodes=list(nodes_occurrences.keys()),node_weights=list(nodes_occurrences.values())
+                p.plot_sg_colormap(nodes=list(nodes_occurrences.keys()),node_weights=list(nodes_occurrences.values())
                             ,links=links,link_weights=link_occurrences,boolIF=True)
             else:
-                p.plot_colormap(nodes=list(nodes_occurrences.keys()), node_weights=list(nodes_occurrences.values())
+                p.plot_sg_colormap(nodes=list(nodes_occurrences.keys()), node_weights=list(nodes_occurrences.values())
                             , links=links, link_weights=link_occurrences, boolIF=False)
 
-            # p.plot_multi_colormap(nodes=list(nodes_occurrences.keys()),
+            # p.plot_sg_multi_colormap(nodes=list(nodes_occurrences.keys()),
             #                       node_weights=list(nodes_occurrences.values()),links1=links,
             #                      link_weights1=link_occurrences,links2=links,link_weights2=link_rssis)
             plt.tight_layout()

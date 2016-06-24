@@ -68,7 +68,6 @@ class LogProcessor:
         """
         return np.mean(self.get_delays())
 
-
     def get_delays(self, addr, normalized=False):
         """
         Get delay values for every packet belonging to the same src mote with addr
@@ -210,6 +209,89 @@ class LogProcessor:
         if clean_all:
             for mote in motes_clean:
                 self.packets += mote
+
+    def get_total_packets(self):
+        tot_packets= self.packets
+        return len(tot_packets)
+
+    def get_total_duration(self):
+        t0 = self.packets[0].asn_first
+        t1 = self.packets[-1].asn_last
+        return (t1-t0)*0.015  # in seconds
+
+    def get_seen_nodes(self):
+        seen_nodes = []
+        node_occurrences = []
+
+        for pkt in self.packets:
+            for node in pkt.get_path(full=True):
+                if not (node in seen_nodes):
+                    seen_nodes.append(node)
+                    node_occurrences.append(1)
+                else:
+                    node_idx = seen_nodes.index(node)
+                    node_occurrences[node_idx] += 1
+        dict = {}
+        for node in seen_nodes:
+            dict[node] = node_occurrences[seen_nodes.index(node)]
+
+        return dict
+
+    def get_seen_channels(self):
+        seen_channels = []
+        channels_occurrences = []
+
+        for pkt in self.packets:
+            for channel in pkt.get_channels():
+                if not (channel in seen_channels):
+                    seen_channels.append(channel)
+                    channels_occurrences.append(1)
+                else:
+                    channel_idx = seen_channels.index(channel)
+                    channels_occurrences[channel_idx] += 1
+        dict = {}
+        for channel in seen_channels:
+            dict[channel] = channels_occurrences[seen_channels.index(channel)]
+        return dict
+
+    def get_seen_links(self,type="occurrences"):
+        seen_links = []
+
+        if type is "occurrences":
+            link_occurrences = []
+
+            for pkt in self.packets:
+                path = pkt.get_path(full=True)
+                for idx, node in enumerate(path):
+                    if idx != len(path) - 1:
+                        link = [path[idx], path[idx + 1]]
+                        if not (link in seen_links):
+                            seen_links.append(link)
+                            link_occurrences.append(1)
+                        else:
+                            link_idx = seen_links.index(link)
+                            link_occurrences[link_idx] += 1
+
+            return seen_links, link_occurrences
+
+        elif type is "RSSI":
+            link_rssi = []
+
+            for pkt in self.packets:
+                path = pkt.get_path(full=True)
+                RSSIs = pkt.get_rssi()
+                for idx, node in enumerate(path):
+                    if idx != len(path) - 1:
+                        link = [path[idx], path[idx + 1]]
+                        if not (link in seen_links):
+                            seen_links.append(link)
+                            link_rssi.append([RSSIs[idx]])
+                        else:
+                            link_idx = seen_links.index(link)
+                            link_rssi[link_idx].append(RSSIs[idx])
+            avg_rssi=[np.mean(rssis_per_link) for rssis_per_link in link_rssi]
+            return seen_links,avg_rssi
+
 
 if __name__ == '__main__':
 
