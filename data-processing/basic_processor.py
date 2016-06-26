@@ -396,7 +396,7 @@ def test_multichannel():
     plt.figure()
 
     for i in range(1, 5):
-        p = BasicProcessor(filename="../../../whitening/WHData/Data/triagnosys/%d.log" % i,
+        p = BasicProcessor(filename="../../WHData/Data/triagnosys/%d.log" % i,
                        format="WHITENING")
 
         # p.plot_avg_hops()
