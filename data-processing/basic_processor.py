@@ -16,6 +16,7 @@ from pylab import show, savefig, figure, \
 
 from log_processor import LogProcessor
 from toolbox import set_box_plot, set_figure_parameters, get_all_files
+from tsch_hopping_calculator import TSCHopping
 import csv
 
 
@@ -193,6 +194,29 @@ class BasicProcessor(LogProcessor):
             # plt.figure()
             mote_range = [mote_id for idx, mote_id in enumerate(gl_mote_range) if idx % 2 == 0]
             plt.plot(success, label=self.filename.split("/")[-1].split(".log")[0], marker="^")
+
+    def plot_channels_reliability(self,schedule_folder):
+
+        a = TSCHopping(schedule_folder)
+
+        channel_drops_cnt = [0] * 16
+        channel_usage_cnt = [0] * 16
+        big_error = 0
+        for pkt in self.packets:
+            for hop in pkt.hop_info:
+                if hop['freq'] > 26 or hop['freq'] < 11:
+                    big_error += 1
+
+                if hop['retx'] != 0:
+                    if hop['retx'] != 3:
+                        d_freq = a.calculate_dropped_frequency(hop['addr'],hop['retx'],pkt.asn_last)
+                        channel_drops_cnt[d_freq - 11] += 1
+
+        channel_drops_cnt = [ channel_drop/max(channel_drops_cnt) for channel_drop in channel_drops_cnt]
+        print("There are %d out of range frequencies out of %d packets" % (big_error, len(self.packets)))
+        plt.figure()
+        plt.plot(channel_drops_cnt)
+
 
 
 def plot_normalized_delay_per_application():
@@ -395,7 +419,7 @@ def test_multichannel():
     set_figure_parameters()
     plt.figure()
 
-    for i in range(1, 5):
+    for i in range(1, 2):
         p = BasicProcessor(filename="../../WHData/Data/triagnosys/%d.log" % i,
                        format="WHITENING")
 
@@ -405,11 +429,12 @@ def test_multichannel():
         # p.plot_timeline()
 
         # p.correct_timeline(clean_all=False)
-        p.plot_reliability()
+        # p.plot_reliability()
+        p.plot_channels_reliability("../../WHData/Data/Schedules/schedules_lknrandom")
 
-    plt.ylim((0.0, 1.1))
+    #plt.ylim((0.0, 1.1))
     plt.grid(True)
-    plt.legend()
+    #plt.legend()
     plt.show()
 
 

@@ -1,32 +1,22 @@
 
 import json
-import fileinput
-from toolbox import set_box_plot, set_figure_parameters, get_all_files
+from toolbox import get_all_files
 
-# class mote_info:
-#     def __init__(self, mote_id, time):
-#
-# class active_slot:
-#     def __init__(self, time, freq, id):
-#         self.time = time
-#         self.freq = freq
-#         self.id = id
 
-class net_schedule:
+class NetSchedule:
     def __init__(self, slotframe_length, n_active_slots, hopping_seq,m_slot_map):
         self.hopping_sequence=hopping_seq
         self.slotframe_length = slotframe_length
         self.active_slots = n_active_slots
         self.mote_slot_map = m_slot_map
 
-class TSCH_hopping:
-    def __init__(self,foldername):
-        print('Creating a TSCH frame for %s' % foldername)
+class TSCHopping:
+    def __init__(self,full_path):
+        print('Creating a TSCH hopper for %s' % full_path)
 
-        # TODO define a variable size dictionary motes_list = {'mote_id' : network}
-
-        files = get_all_files(foldername,folders=['schedules_lkngolden'])
-        #print(files)
+        foldername = full_path.split("/")[-1]
+        folderpath = full_path[:-len(foldername)]
+        files = get_all_files(folderpath,folders=[foldername])
 
         self.schedules = []
         for file in files:
@@ -35,13 +25,13 @@ class TSCH_hopping:
         self.mote_net_map = {}
         for idx,schedule in enumerate(self.schedules):
             for a_slot in schedule.active_slots:
-                splitted_addr = a_slot['address'].split(":")
-                self.mote_net_map.__setitem__(splitted_addr[-1],idx)
+                mote_id = int(a_slot['address'].split(":")[-1][-2:],16)
+                self.mote_net_map.__setitem__(mote_id,idx)
 
-        print('all loaded')
+        #print('Schedules loaded')
 
     def load_schedule(self,file):
-        print("Loading schedule "+file)
+        #print("Loading schedule "+file)
 
         # read and parse config
         config = read_config(file)
@@ -57,17 +47,15 @@ class TSCH_hopping:
         mote_slot_map = {}
         parsed_active_slots = []
         for idx,slot in enumerate(active_slots):
-            #parsed_active_slots.append(active_slot(slot["slotOffset"],slot["channelOffset"],slot["address"]))
             parsed_active_slots.append({'slot_offset': slot["slotOffset"], 'channel_offset': slot["channelOffset"], 'address': slot["address"]})
-            mote_slot_map.__setitem__(slot["address"].split(':')[-1],idx)
-
-        return net_schedule(slotframe_length,parsed_active_slots,hopping_sequence,mote_slot_map)
+            mote_id = int(slot['address'].split(":")[-1][-2:], 16)
+            mote_slot_map.__setitem__(mote_id,idx)
 
         #app_enabled = config["app_enabled"]
-
         #app_type = config["app_type"]
-
         #app_dest_addr = config["app_dest_addr"]
+
+        return NetSchedule(slotframe_length,parsed_active_slots,hopping_sequence,mote_slot_map)
 
     def find_mote_info(self, mote_id):
         target_schedule = self.schedules[self.mote_net_map.get(mote_id)]
@@ -79,9 +67,11 @@ class TSCH_hopping:
     def calculate_frequency(self, mote_id, asn):
         hopping_sequence,channel_offset = self.find_mote_info(mote_id)
         asn_offset = asn % 16
-        return 11 + int(hopping_sequence[(asn_offset+channel_offset)%16])
+        return int(hopping_sequence[(asn_offset+channel_offset)%16])
 
-
+    def calculate_dropped_frequency(self, mote_id, retx_cnt ,asn_last):
+        target_schedule = self.schedules[self.mote_net_map.get(mote_id)]
+        return self.calculate_frequency(mote_id, asn_last-(3-retx_cnt)*target_schedule.slotframe_length)
 
 
 def read_config(fname):
@@ -100,12 +90,12 @@ def read_config(fname):
 
 if __name__ == '__main__':
     for i in range(1, 2):
-        #filename= "../../WHData/Data/triagnosys/%d.log" % i
-        foldername="../../WHData/Data/Schedules/"
-        a = TSCH_hopping(foldername)
 
-        mote_id = '0x1a'
+        foldername="../../WHData/Data/Schedules/schedules_lkngolden"
+        a = TSCHopping(foldername)
+
+        mote_id = int('1a',16)
         ASN = 1000
         freq = a.calculate_frequency(mote_id,ASN)
 
-        print("The frequency used by "+mote_id+" to transmit in ASN %d" % ASN+" is %d " % freq)
+        print("The frequency used by %d to transmit in ASN %d is %d " % (mote_id,ASN,freq))
