@@ -151,7 +151,7 @@ class BasicProcessor(LogProcessor):
 
         plt.grid(True)
 
-    def plot_reliability(self, return_result=False):
+    def plot_motes_reliability(self, return_result=False):
         """
         Plot application layer reliability for all motes.
         :param return_result:
@@ -206,17 +206,21 @@ class BasicProcessor(LogProcessor):
             for hop in pkt.hop_info:
                 if hop['freq'] > 26 or hop['freq'] < 11:
                     big_error += 1
+                else:
+                    if hop['retx'] != 0 : #and hop['retx'] != 4:
+                        channel_usage_cnt[hop['freq'] - 11] += 1
+                        for i in range(1,4-hop['retx']+1):
+                            d_freq = a.calculate_dropped_frequency(hop['addr'],i,pkt.asn_last)
+                            channel_drops_cnt[d_freq - 11] += 1
+                            channel_usage_cnt[d_freq - 11] += 1
 
-                if hop['retx'] != 0:
-                    if hop['retx'] != 3:
-                        d_freq = a.calculate_dropped_frequency(hop['addr'],hop['retx'],pkt.asn_last)
-                        channel_drops_cnt[d_freq - 11] += 1
 
-        channel_drops_cnt = [ channel_drop/max(channel_drops_cnt) for channel_drop in channel_drops_cnt]
+        #channel_drops_cnt = [ channel_drop/max(channel_drops_cnt) for channel_drop in channel_drops_cnt]
+        channel_drops_cnt = [channel_drop / (channel_usage_cnt[i]+1) for i,channel_drop in enumerate(channel_drops_cnt)]
+        print(channel_drops_cnt)
         print("There are %d out of range frequencies out of %d packets" % (big_error, len(self.packets)))
         plt.figure()
         plt.plot(channel_drops_cnt)
-
 
 
 def plot_normalized_delay_per_application():
@@ -416,25 +420,22 @@ def test_multichannel():
     :return:
     """
 
-    set_figure_parameters()
-    plt.figure()
-
-    for i in range(1, 2):
-        p = BasicProcessor(filename="../../WHData/Data/triagnosys/%d.log" % i,
+    for i in range(1, 4):
+        p = BasicProcessor(filename="../../WHData/Data/LKN_measurements_140716/Logs/%d.log" % i,
                        format="WHITENING")
 
         # p.plot_avg_hops()
         # p.plot_delays()
-
+        print(p.get_seen_nodes())
         # p.plot_timeline()
 
         # p.correct_timeline(clean_all=False)
-        # p.plot_reliability()
-        p.plot_channels_reliability("../../WHData/Data/Schedules/schedules_lknrandom")
+        #p.plot_motes_reliability()
+        p.plot_channels_reliability("../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i)
 
-    #plt.ylim((0.0, 1.1))
+    plt.ylim((0.0, 1.1))
     plt.grid(True)
-    #plt.legend()
+    plt.legend()
     plt.show()
 
 

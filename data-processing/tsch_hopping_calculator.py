@@ -40,7 +40,7 @@ class TSCHopping:
         numserialrx = config["numserialrx"]
         numslotoff = config["numslotoff"]
 
-        slotframe_length = len(active_slots) + numserialrx + numslotoff
+        slotframe_length = len(active_slots) + numserialrx # OFF slots are not hopping!! + numslotoff
 
         hopping_sequence = config["hopping_seq"].split(',')
 
@@ -67,11 +67,11 @@ class TSCHopping:
     def calculate_frequency(self, mote_id, asn):
         hopping_sequence,channel_offset = self.find_mote_info(mote_id)
         asn_offset = asn % 16
-        return int(hopping_sequence[(asn_offset+channel_offset)%16])
+        return int(hopping_sequence[(asn_offset+channel_offset)%16])+11
 
-    def calculate_dropped_frequency(self, mote_id, retx_cnt ,asn_last):
+    def calculate_dropped_frequency(self, mote_id, n_frames_ago, asn_last):
         target_schedule = self.schedules[self.mote_net_map.get(mote_id)]
-        return self.calculate_frequency(mote_id, asn_last-(3-retx_cnt)*target_schedule.slotframe_length)
+        return self.calculate_frequency(mote_id, asn_last-n_frames_ago*target_schedule.slotframe_length)
 
 
 def read_config(fname):
