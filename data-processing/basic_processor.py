@@ -420,22 +420,31 @@ def test_multichannel():
     :return:
     """
 
-    for i in range(1, 4):
+    for i in range(1, 3):
         p = BasicProcessor(filename="../../WHData/Data/LKN_measurements_140716/Logs/%d.log" % i,
                        format="WHITENING")
 
         # p.plot_avg_hops()
         # p.plot_delays()
-        print(p.get_seen_nodes())
+
         # p.plot_timeline()
 
         # p.correct_timeline(clean_all=False)
         #p.plot_motes_reliability()
         p.plot_channels_reliability("../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i)
 
-    plt.ylim((0.0, 1.1))
+        D=p.get_seen_nodes()
+        plt.figure()
+        plt.bar(range(len(D)), D.values(), align='center')
+        plt.xticks(range(len(D)), D.keys())
+
+        #plt.show()
+
+        print(p.get_seen_channels())
+
+    #plt.ylim((0.0, 1.1))
     plt.grid(True)
-    plt.legend()
+    #plt.legend()
     plt.show()
 
 
