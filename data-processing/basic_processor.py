@@ -221,6 +221,32 @@ class BasicProcessor(LogProcessor):
         print("There are %d out of range frequencies out of %d packets" % (big_error, len(self.packets)))
         plt.figure()
         plt.plot(channel_drops_cnt)
+        return
+
+        def plot_hopping(self, schedule_folder):
+            a = TSCHopping(schedule_folder)
+
+            theoretical_freq = []
+            measured_freq = []
+
+            freq_mismatch = 0
+            for pkt in self.packets:
+                for hop in pkt.hop_info:
+                    f_th = a.calculate_frequency(hop['addr'], pkt.asn_last)
+                    f_meas = hop['freq']
+
+                    if f_meas != f_th:
+                        freq_mismatch += 1
+
+                    theoretical_freq.append(f_th)
+                    measured_freq.append(f_meas)
+            # print("There are %i frequencies mismatch" % freq_mismatch)
+
+            plt.figure()
+            plt.plot(theoretical_freq)
+            plt.plot(measured_freq)
+
+            return
 
 
 def plot_normalized_delay_per_application():
@@ -429,18 +455,20 @@ def test_multichannel():
 
         # p.plot_timeline()
 
-        # p.correct_timeline(clean_all=False)
+        #p.correct_timeline(clean_all=False)
         #p.plot_motes_reliability()
         p.plot_channels_reliability("../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i)
 
-        D=p.get_seen_nodes()
-        plt.figure()
-        plt.bar(range(len(D)), D.values(), align='center')
-        plt.xticks(range(len(D)), D.keys())
+        # D =p.get_seen_nodes()
+        # plt.figure()
+        # plt.bar(range(len(D)), D.values(), align='center')
+        # plt.xticks(range(len(D)), D.keys())
 
         #plt.show()
 
-        print(p.get_seen_channels())
+        #print(p.get_seen_channels())
+
+        #p.plot_hopping("../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i)
 
     #plt.ylim((0.0, 1.1))
     plt.grid(True)

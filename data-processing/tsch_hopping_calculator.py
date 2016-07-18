@@ -40,7 +40,7 @@ class TSCHopping:
         numserialrx = config["numserialrx"]
         numslotoff = config["numslotoff"]
 
-        slotframe_length = len(active_slots) + numserialrx # OFF slots are not hopping!! + numslotoff
+        slotframe_length = len(active_slots) + numserialrx + numslotoff
 
         hopping_sequence = config["hopping_seq"].split(',')
 
