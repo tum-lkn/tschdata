@@ -56,9 +56,10 @@ def test_multichannel():
     Test basic performance parameters for whitening measurements
     :return:
     """
+    max_retxs = [4,2,4]
 
     for i in range(1, 3):
-        p = BasicProcessor(filename="../../WHData/Data/LKN_measurements_140716/Logs/%d.log" % i,
+        p = BasicProcessor(filename="../../../WHData/Data/LKN_measurements_140716/Logs/%d.log" % i,
                        format="WHITENING")
 
         # p.plot_avg_hops()
@@ -68,7 +69,8 @@ def test_multichannel():
 
         p.correct_timeline(clean_all=False)
         p.plot_motes_reliability()
-        p.plot_channels_reliability("../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i)
+        p.plot_channels_reliability("../../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i,max_retxs
+                                    [i-1])
 
         D=p.get_seen_nodes()
 
@@ -77,7 +79,7 @@ def test_multichannel():
         plt.xticks(range(len(D)), D.keys())
 
 
-        p.plot_hopping("../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i)
+        p.plot_hopping("../../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i)
 
     plt.grid(True)
     plt.show()

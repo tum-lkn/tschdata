@@ -1,15 +1,7 @@
 
 import json
-from toolbox import get_all_files
+from toolbox import get_all_files,Schedule
 
-
-# Todo use schedule class from toolbox
-class NetSchedule:
-    def __init__(self, slotframe_length, n_active_slots, hopping_seq,m_slot_map):
-        self.hopping_sequence=hopping_seq
-        self.slotframe_length = slotframe_length
-        self.active_slots = n_active_slots
-        self.mote_slot_map = m_slot_map
 
 class TSCHopping:
     def __init__(self,full_path):
@@ -56,7 +48,7 @@ class TSCHopping:
         #app_type = config["app_type"]
         #app_dest_addr = config["app_dest_addr"]
 
-        return NetSchedule(slotframe_length,parsed_active_slots,hopping_sequence,mote_slot_map)
+        return Schedule(len(active_slots),numslotoff,numserialrx,parsed_active_slots,hopping_sequence,mote_slot_map)
 
     def find_mote_info(self, mote_id):
         target_schedule = self.schedules[self.mote_net_map.get(mote_id)]
@@ -72,7 +64,7 @@ class TSCHopping:
 
     def calculate_dropped_frequency(self, mote_id, n_frames_ago, asn_last):
         target_schedule = self.schedules[self.mote_net_map.get(mote_id)]
-        return self.calculate_frequency(mote_id, asn_last-n_frames_ago*target_schedule.slotframe_length)
+        return self.calculate_frequency(mote_id, asn_last-n_frames_ago*target_schedule.frame_length)
 
 
 def read_config(fname):
