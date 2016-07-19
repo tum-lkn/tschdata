@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy
 from dataprocessing.basic_processor import BasicProcessor
+from dataprocessing.toolbox import set_box_plot
 
 
 def print_dataset_parameters():
@@ -13,18 +14,18 @@ def print_dataset_parameters():
     tot_per_node_packets = []
     tot_per_channel_packets = []
 
-    for i in range(1, 3):
+    measurements_mote_lists = []
+    measurements_channels_lists = []
+    for i in range(1, 4):
         print("\n")
 
-        d = BasicProcessor(filename="../../../WHData/Data/LKN_measurements_140716/Logs/%d.log" % i,
+        d = BasicProcessor(filename="../../../WHData/Data/LKN_measurements_190716/Logs/%d.log" % i,
                    format="WHITENING")
 
         tp=d.get_number_of_packets()
         dur = d.get_total_duration() / 60  # in minutes
         nodes_occurrences=d.get_seen_nodes()
         channels_occurrences=d.get_seen_channels()
-        links,link_occurrences=d.get_seen_links()
-        links, link_rssis = d.get_seen_links(type="RSSI")
 
         print("File log: %d.log" % i)
         print("Total duration [min]:\n", dur)
@@ -34,6 +35,9 @@ def print_dataset_parameters():
         #print("Channels occurrences:\n", channels_occurrences)
         tot_avg_node_occurr = numpy.mean(list(nodes_occurrences.values()))
         tot_avg_channel_occurr = numpy.mean(list(channels_occurrences.values()))
+
+        measurements_mote_lists.append(list(nodes_occurrences.values()))
+        measurements_channels_lists.append(list(channels_occurrences.values()))
 
         print("Nodes occurrences (avg):\n", tot_avg_node_occurr)
         print("Channels occurrences (avg):\n", tot_avg_channel_occurr)
@@ -49,6 +53,17 @@ def print_dataset_parameters():
     print(tot_per_channel_packets)
     print(tot_packets)
 
+    fig = plt.figure()
+    # Create an axes instance
+    ax = fig.add_subplot(111)
+    # Create the boxplot
+    bp = ax.boxplot(measurements_mote_lists+measurements_channels_lists)
+    set_box_plot(bp)
+
+    ax.set_xticklabels(['Motes - Rnd', 'Ch - Rnd', 'Motes - White', 'Ch - White','Motes - Gld','Ch - Gld'])
+    plt.title("Motes Channels occurrencies")
+    plt.grid(True)
+    plt.show()
 
 def test_multichannel():
     """
@@ -77,11 +92,14 @@ def test_multichannel():
         plt.bar(range(len(D)), D.values(), align='center')
         plt.xticks(range(len(D)), D.keys())
 
-
         p.plot_hopping("../../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i)
 
     plt.grid(True)
     plt.show()
+
+    fig = plt.gcf()
+    # Todo not working
+    # fig.savefig("dataset_whitening.pdf", format='pdf', bbox='tight')
 
 
 def plot_latencies():
@@ -91,5 +109,14 @@ def plot_latencies():
     """
     pass
 
+
+def boxplot_motes(motes_occurrencies):
+
+
+    return
+
+
 if __name__ == '__main__':
-    test_multichannel()
+    #test_multichannel()
+    print_dataset_parameters()
+
