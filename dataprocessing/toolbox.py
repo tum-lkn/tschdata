@@ -6,7 +6,7 @@ import scipy.stats as st
 from pylab import setp
 import os
 from os.path import isfile, join
-from seaborn.apionly import heatmap
+#from seaborn.apionly import heatmap
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
@@ -14,7 +14,7 @@ from matplotlib import rcParams
 
 class Schedule:
 
-    def __init__(self, num_slots, num_off, num_serial, hopping_seq=None, m_slot_map=None, t_slot=0.015, shared=False):
+    def __init__(self, num_slots, num_off, num_serial, s_active_slots=None, hopping_seq=None, m_slot_map=None, t_slot=0.015, shared=False):
         """
         Assumption: every active slot corresponds to a mote with addr = slot#
         :param num_slots: number of active slots
@@ -31,10 +31,13 @@ class Schedule:
         self.t_slot = t_slot  # in s
 
         if not (hopping_seq is None):
-            self.hopping_seq = hopping_seq
+            self.hopping_sequence = hopping_seq
 
         if not (m_slot_map is None):
-            self.m_slot_map = m_slot_map
+            self.mote_slot_map = m_slot_map
+
+        if not (s_active_slots is None):
+            self.active_slots = s_active_slots
 
         self.shared = shared
 

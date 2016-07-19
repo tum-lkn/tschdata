@@ -185,7 +185,7 @@ class BasicProcessor(LogProcessor):
             mote_range = [mote_id for idx, mote_id in enumerate(gl_mote_range) if idx % 2 == 0]
             plt.plot(success, label=self.filename.split("/")[-1].split(".log")[0], marker="^")
 
-    def plot_channels_reliability(self, schedule_folder):
+    def plot_channels_reliability(self, schedule_folder, max_retx):
         """
         TODO better representation
         :param schedule_folder:
@@ -228,8 +228,6 @@ class BasicProcessor(LogProcessor):
         # plt.plot(measured_freq)
 
         return
-
-
 
 if __name__ == '__main__':
     pass
