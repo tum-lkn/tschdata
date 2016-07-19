@@ -311,6 +311,11 @@ class LogProcessor:
             return seen_links,avg_rssi
 
     def check_hopping(self,schedule_folder):
+        """
+        FIXME move to whitening scripts
+        :param schedule_folder:
+        :return:
+        """
         a = TSCHopping(schedule_folder)
 
         theoretical_freq = []

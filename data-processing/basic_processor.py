@@ -195,7 +195,12 @@ class BasicProcessor(LogProcessor):
             mote_range = [mote_id for idx, mote_id in enumerate(gl_mote_range) if idx % 2 == 0]
             plt.plot(success, label=self.filename.split("/")[-1].split(".log")[0], marker="^")
 
-    def plot_channels_reliability(self,schedule_folder,max_retx):
+    def plot_channels_reliability(self, schedule_folder):
+        """
+        TODO better representation
+        :param schedule_folder:
+        :return:
+        """
 
         a = TSCHopping(schedule_folder)
 
@@ -207,7 +212,7 @@ class BasicProcessor(LogProcessor):
                 if hop['freq'] > 26 or hop['freq'] < 11:
                     big_error += 1
                 else:
-                    if hop['retx'] != 0 : #and hop['retx'] != 4:
+                    if hop['retx'] != 0: #and hop['retx'] != 4:
                         channel_usage_cnt[hop['freq'] - 11] += 1
                         for i in range(1,max_retx-hop['retx']+1):
                             d_freq = a.calculate_dropped_frequency(hop['addr'],i,pkt.asn_last)
@@ -223,6 +228,7 @@ class BasicProcessor(LogProcessor):
         plt.plot(channel_drops_cnt)
         return
 
+
     def plot_hopping(self, schedule_folder):
 
         theoretical_freq, measured_freq = self.check_hopping(schedule_folder)
@@ -235,6 +241,7 @@ class BasicProcessor(LogProcessor):
         return
 
 
+<<<<<<< HEAD
 def plot_normalized_delay_per_application():
     """
     Plot delay for scenario / application: normalized per hop
@@ -460,11 +467,7 @@ def test_multichannel():
 
 
 if __name__ == '__main__':
-    # plot_all_delays()
-    # plot_all_reliabilities()
-    test_multichannel()
-    # plot_normalized_delay_per_application()
-    # plot_all_retx()
+    pass
 
 
 
