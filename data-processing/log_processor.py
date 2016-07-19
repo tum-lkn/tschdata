@@ -6,6 +6,7 @@ __author__ = 'Mikhail Vilgelm'
 
 from uinject_packet import TestbedPacket
 from toolbox import find_latest_dump
+from tsch_hopping_calculator import TSCHopping
 import os
 import numpy as np
 import json
@@ -309,20 +310,51 @@ class LogProcessor:
             avg_rssi=[np.mean(rssis_per_link) for rssis_per_link in link_rssi]
             return seen_links,avg_rssi
 
+    def check_hopping(self,schedule_folder):
+        a = TSCHopping(schedule_folder)
+
+        theoretical_freq = []
+        measured_freq = []
+
+        freq_mismatch= 0
+        for pkt in self.packets:
+            for hop in pkt.hop_info:
+                f_th = a.calculate_frequency(hop['addr'], pkt.asn_last)
+                f_meas = hop['freq']
+
+                if f_meas != f_th:
+                    freq_mismatch += 1
+
+                theoretical_freq.append(f_th)
+                measured_freq.append(f_meas)
+        print("There are %i frequencies mismatch" % freq_mismatch)
+
+
+        return theoretical_freq,measured_freq
+
+
 
 if __name__ == '__main__':
 
-    folder = gl_dump_path  + 'tdma'
+    # if len(sys.argv) != 2:
+    #    exit("Usage: %s dumpfile" % sys.argv[0])
 
-    p = LogProcessor(filename=folder+'/no-interference-hopping/interference_hopping.log')
+    # folder = gl_dump_path  + 'tdma'
+    #
+    # # p = LogProcessor(folder+find_latest_dump(folder))
+    # p = LogProcessor(filename=folder+'/no-interference-hopping/interference_hopping.log')
+    #
+    # print(p.find_motes_in_action())
+    #
+    # p.write_as_json('../json/tdma_interference.json')
+    #
+    # with open('../json/tdma_interference.json') as json_data:
+    #     a = json.load(json_data)
+    #
+    # print('finished loading... ')
+    # print(a['packets'][0])
 
-    print(p.find_motes_in_action())
+    # Main whitening measurements
 
-    p.write_as_json('../json/tdma_interference.json')
-
-    with open('../json/tdma_interference.json') as json_data:
-        a = json.load(json_data)
-
-    print('finished loading... ')
-    print(a['packets'][0])
-
+    p =LogProcessor(filename = "../../WHData/Data/LKN_measurements_140716/Logs/1.log",format = "WHITENING")
+    p.check_hopping("../../WHData/Data/LKN_measurements_140716/Schedules/schedules_1")

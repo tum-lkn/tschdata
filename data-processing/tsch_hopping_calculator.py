@@ -3,6 +3,7 @@ import json
 from toolbox import get_all_files
 
 
+# Todo use schedule class from toolbox
 class NetSchedule:
     def __init__(self, slotframe_length, n_active_slots, hopping_seq,m_slot_map):
         self.hopping_sequence=hopping_seq
@@ -40,7 +41,7 @@ class TSCHopping:
         numserialrx = config["numserialrx"]
         numslotoff = config["numslotoff"]
 
-        slotframe_length = len(active_slots) + numserialrx # OFF slots are not hopping!! + numslotoff
+        slotframe_length = len(active_slots) + numserialrx + numslotoff
 
         hopping_sequence = config["hopping_seq"].split(',')
 
