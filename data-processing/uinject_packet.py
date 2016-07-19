@@ -14,6 +14,7 @@ gl_hopping_sequence = [f+11 for f in gl_hopping_sequence]
 
 
 class TestbedPacket:
+
     @classmethod
     def load_data(cls, data, timestamp, format='SMARTGRID'):
         """
