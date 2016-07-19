@@ -191,11 +191,11 @@ class BasicProcessor(LogProcessor):
         if return_result:
             return success, weighted_avg
         else:
-            # plt.figure()
+            plt.figure()
             mote_range = [mote_id for idx, mote_id in enumerate(gl_mote_range) if idx % 2 == 0]
             plt.plot(success, label=self.filename.split("/")[-1].split(".log")[0], marker="^")
 
-    def plot_channels_reliability(self,schedule_folder):
+    def plot_channels_reliability(self,schedule_folder,max_retx):
 
         a = TSCHopping(schedule_folder)
 
@@ -209,7 +209,7 @@ class BasicProcessor(LogProcessor):
                 else:
                     if hop['retx'] != 0 : #and hop['retx'] != 4:
                         channel_usage_cnt[hop['freq'] - 11] += 1
-                        for i in range(1,4-hop['retx']+1):
+                        for i in range(1,max_retx-hop['retx']+1):
                             d_freq = a.calculate_dropped_frequency(hop['addr'],i,pkt.asn_last)
                             channel_drops_cnt[d_freq - 11] += 1
                             channel_usage_cnt[d_freq - 11] += 1
@@ -430,9 +430,9 @@ def test_multichannel():
     Test basic performance parameters for whitening measurements
     :return:
     """
-
+    max_retxs = [4,2,4]
     for i in range(1, 3):
-        p = BasicProcessor(filename="../../WHData/Data/LKN_measurements_140716/Logs/%d.log" % i,
+        p = BasicProcessor(filename="../../WHData/Data/LKN_measurements_190716/Logs/%d.log" % i,
                        format="WHITENING")
 
         # p.plot_avg_hops()
@@ -442,17 +442,17 @@ def test_multichannel():
 
         p.correct_timeline(clean_all=False)
         p.plot_motes_reliability()
-        p.plot_channels_reliability("../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i)
+        p.plot_channels_reliability("../../WHData/Data/LKN_measurements_190716/Schedules/schedules_%d" % i,max_retxs[i-1])
 
-        D=p.get_seen_nodes()
-
-        plt.figure()
-        plt.bar(range(len(D)), D.values(), align='center')
-        plt.xticks(range(len(D)), D.keys())
+        # D=p.get_seen_nodes()
+        #
+        # plt.figure()
+        # plt.bar(range(len(D)), D.values(), align='center')
+        # plt.xticks(range(len(D)), D.keys())
 
 
         #print(p.get_seen_channels())
-        p.plot_hopping("../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i)
+        #p.plot_hopping("../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i)
 
     plt.grid(True)
     #plt.legend()
