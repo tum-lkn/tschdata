@@ -131,7 +131,7 @@ if __name__ == '__main__':
         d = DataSetProcessor(filename="../../WHData/Data/LKN_measurements_140716/Logs/%d.log" % i,
                    format="WHITENING")
 
-        tp=d.get_total_packets()
+        tp=d.get_number_of_packets()
         dur = d.get_total_duration() / 60  # in minutes
         nodes_occurrences=d.get_seen_nodes()
         channels_occurrences=d.get_seen_channels()
