@@ -1,19 +1,23 @@
 """
 Helper functions and basic data structures for processing of logged packet.
 """
-__author__ = 'Mikhail Vilgelm'
 
-import numpy as np
 import scipy.stats as st
 from pylab import setp
 
 import os
 from os.path import isfile, join
+from seaborn.apionly import heatmap
+import numpy as np
+import matplotlib.pyplot as plt
+
 from matplotlib import rcParams
+rcParams.update({'figure.autolayout': True})
+
 
 class Schedule:
 
-    def __init__(self, num_slots, num_off, num_serial, t_slot=0.015, shared=False):
+    def __init__(self, num_slots, num_off, num_serial, hopping_seq=None, m_slot_map=None, t_slot=0.015, shared=False):
         """
         Assumption: every active slot corresponds to a mote with addr = slot#
         :param num_slots: number of active slots
@@ -29,11 +33,21 @@ class Schedule:
         self.schedule += [0 for i in range(num_off+num_serial)]
         self.t_slot = t_slot  # in s
 
+        if not (hopping_seq is None):
+            self.hopping_seq = hopping_seq
+
+        if not (m_slot_map is None):
+            self.m_slot_map = m_slot_map
+
         self.shared = shared
 
     @property
-    def frame_length(self):
+    def frame_duration(self):
         return len(self.schedule)*self.t_slot
+
+    @property
+    def frame_length(self):
+        return len(self.schedule)
 
     def get_min_link_delay(self, start, end):
         """
@@ -45,7 +59,7 @@ class Schedule:
         if start <= end:
             return (end-start)*self.t_slot
         else:
-            return self.frame_length - ((start - end)*self.t_slot)
+            return self.frame_duration - ((start - end) * self.t_slot)
 
     def get_min_delay_heatmap(self):
         """
@@ -81,7 +95,7 @@ class Schedule:
             for idx, hop in enumerate(path):
                 if idx == 0:
                     # consider first hop as half a frame-length
-                    delay += 0.5*self.frame_length
+                    delay += 0.5*self.frame_duration
                     # delay += 0.0
                 else:
                     delay += self.get_min_link_delay(hop-1, hop)
@@ -102,11 +116,11 @@ class Schedule:
             for idx, hop in enumerate(pkt.hop_info):
                 if idx == 0:
                     # first hop - consider half delay for the first retransmission
-                    delay += 0.5*self.frame_length + self.frame_length*(3 - hop['retx'])
+                    delay += 0.5*self.frame_duration + self.frame_duration * (3 - hop['retx'])
                     # delay += self.frame_length*(3 - hop['retx'])
                 else:
                     delay += (self.get_min_link_delay(pkt.hop_info[idx-1]['addr'], hop['addr']) +
-                             self.frame_length*(3 - hop['retx']))
+                              self.frame_duration * (3 - hop['retx']))
                 # else:
     #                delay += (self.get_min_link_delay(hop['addr'], 1) +
     #                         self.frame_length*(3 - hop['retx']))

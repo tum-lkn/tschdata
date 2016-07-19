@@ -16,21 +16,14 @@ from toolbox import set_figure_parameters, Schedule
 
 
 set_figure_parameters()
-
 pd.options.mode.chained_assignment = None
-
 gl_num_active_slots = 13
 gl_num_off_slots = 2
 gl_num_serial_slots = 2
-
 gl_mote_range = range(1, 14)
-
 gl_dump_path = os.getcwd() + '/../'
 gl_image_path = '../../SGMeasurements/pics/'
-
 gl_save = False
-
-
 
 gl_default_schedule = Schedule(num_slots=gl_num_active_slots, num_off=gl_num_off_slots, num_serial=gl_num_serial_slots)
 
