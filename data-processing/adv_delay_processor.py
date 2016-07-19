@@ -12,7 +12,7 @@ from basic_processor import set_box_plot
 from matplotlib import rcParams
 rcParams.update({'figure.autolayout': True})
 from log_processor import LogProcessor
-from toolbox import set_figure_parameters
+from toolbox import set_figure_parameters, Schedule
 
 
 set_figure_parameters()
@@ -31,114 +31,6 @@ gl_image_path = '../../SGMeasurements/pics/'
 gl_save = False
 
 
-class Schedule:
-
-    def __init__(self, num_slots, num_off, num_serial, t_slot=0.015, shared=False):
-        """
-        Assumption: every active slot corresponds to a mote with addr = slot#
-        :param num_slots: number of active slots
-        :param num_off: number of OFF slots
-        :param num_serial: number of serial slots
-        :param t_slot: slot duration in ms
-        :return:
-        """
-        self.num_slots = num_slots
-        self.num_off = num_off
-        self.num_serial = num_serial
-        self.schedule = [i for i in range(1, num_slots+1)]
-        self.schedule += [0 for i in range(num_off+num_serial)]
-        self.t_slot = t_slot  # in s
-
-        self.shared = shared
-
-    @property
-    def frame_length(self):
-        return len(self.schedule)*self.t_slot
-
-    def get_min_link_delay(self, start, end):
-        """
-
-        :param start: source mote
-        :param end: destination mote
-        :return: minimum delay in seconds
-        """
-        if start <= end:
-            return (end-start)*self.t_slot
-        else:
-            return self.frame_length - ((start - end)*self.t_slot)
-
-    def get_min_delay_heatmap(self):
-        """
-        Get data to plot minimum (link) delay heatmap for every link (TDMA)
-        :return:
-        """
-        adj_matrix = []
-        for i in range(self.num_slots):
-            adj_matrix.append([self.get_min_link_delay(i+1, j+1) for j in range(self.num_slots)])
-
-        return adj_matrix
-
-    def plot_min_delay_heatmap(self):
-        """
-        Plot minimum link delays for the topology
-        :return:
-        """
-        data = self.get_min_delay_heatmap()
-        plt.figure()
-        heatmap(data=data, xticklabels=[i for i in gl_mote_range], yticklabels=[i for i in gl_mote_range])
-        if gl_save:
-            plt.savefig(gl_image_path+'t_min_heatmap.png', format='png', bbox='tight')
-
-    def get_min_path_delay(self, path):
-        '''
-        Get minimum delay along the path
-        :param path: list of motes
-        :return:
-        '''
-        delay = 0.0
-        if not self.shared:
-            # return sum([self.get_min_link_delay(hop, hop+1) for idx, hop in enumerate(path) if (idx != len(path)-1)])
-            for idx, hop in enumerate(path):
-                if idx == 0:
-                    # consider first hop as half a frame-length
-                    delay += 0.5*self.frame_length
-                    # delay += 0.0
-                else:
-                    delay += self.get_min_link_delay(hop-1, hop)
-        else:
-            # TODO here for shared slots
-            delay += (len(path)-1)*self.t_slot
-
-        return delay
-
-    def get_min_packet_delay(self, pkt):
-        '''
-        Get minimum delay along the path
-        :param path: list of (mote, retx)
-        :return:
-        '''
-        delay = 0.0
-        if not self.shared:
-            for idx, hop in enumerate(pkt.hop_info):
-                if idx == 0:
-                    # first hop - consider half delay for the first retransmission
-                    delay += 0.5*self.frame_length + self.frame_length*(3 - hop['retx'])
-                    # delay += self.frame_length*(3 - hop['retx'])
-                else:
-                    delay += (self.get_min_link_delay(pkt.hop_info[idx-1]['addr'], hop['addr']) +
-                             self.frame_length*(3 - hop['retx']))
-                # else:
-    #                delay += (self.get_min_link_delay(hop['addr'], 1) +
-    #                         self.frame_length*(3 - hop['retx']))
-        else:
-            # TODO implement for shared slots
-            for idx, hop in enumerate(pkt.hop_info):
-                if idx == 0:
-                    delay += self.t_slot*sum([(2**i)/2 for i in range(1, 5 - hop['retx']) if i!=1])
-                else:
-                    delay += self.t_slot*sum([(2**i)/2 for i in range(1, 5 - hop['retx'])])
-            # pass
-        return delay
 
 gl_default_schedule = Schedule(num_slots=gl_num_active_slots, num_off=gl_num_off_slots, num_serial=gl_num_serial_slots)
 

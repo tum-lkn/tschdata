@@ -436,7 +436,6 @@ def plot_all_reliabilities():
 
     set_box_plot(bp)
 
-    # plt.savefig('../../sgpaper/pics/rel3_mikhail.pdf', format='pdf', bbox='tight')
     plt.show()
 
 
@@ -459,10 +458,11 @@ def test_multichannel():
         #p.plot_motes_reliability()
         p.plot_channels_reliability("../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i)
 
-        # D =p.get_seen_nodes()
-        # plt.figure()
-        # plt.bar(range(len(D)), D.values(), align='center')
-        # plt.xticks(range(len(D)), D.keys())
+        D=p.get_seen_nodes()
+
+        plt.figure()
+        plt.bar(range(len(D)), D.values(), align='center')
+        plt.xticks(range(len(D)), D.keys())
 
         #plt.show()
 

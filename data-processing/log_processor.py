@@ -14,7 +14,6 @@ import json
 
 gl_mote_range = range(1, 34)
 gl_dump_path = os.getcwd() + '/../'
-# gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
 gl_image_path = os.getenv("HOME") + ''
 
 
@@ -65,6 +64,7 @@ class LogProcessor:
 
     def calculate_mean_delay(self):
         """
+        Average delay for all packets
         :return: average delay
         """
         return np.mean(self.get_delays())
@@ -128,6 +128,11 @@ class LogProcessor:
         return motes
 
     def write_as_json(self, output):
+        """
+        Save the file in json format
+        :param output: filename to save
+        :return:
+        """
 
         f = open(output, 'w')
         f.write('{'+'\"packets\":'+'[')
@@ -211,34 +216,41 @@ class LogProcessor:
             for mote in motes_clean:
                 self.packets += mote
 
-    def get_total_packets(self):
-        tot_packets= self.packets
-        return len(tot_packets)
+    def get_number_of_packets(self):
+        """
+        :return: number of packets in the data set
+        """
+        return len(self.packets)
 
     def get_total_duration(self):
+        """
+        :return: Duration of the experiment
+        """
         t0 = self.packets[0].asn_first
         t1 = self.packets[-1].asn_last
         return (t1-t0)*0.015  # in seconds
 
     def get_seen_nodes(self):
-        seen_nodes = []
-        node_occurrences = []
+        """
+        :return: map with nodes and number of their occurences.
+        """
+        seen_nodes = set()
+        node_occurrences = {}
 
         for pkt in self.packets:
-            for node in pkt.get_path(full=True):
+            for node in pkt.get_path(full=False):
                 if not (node in seen_nodes):
-                    seen_nodes.append(node)
-                    node_occurrences.append(1)
+                    seen_nodes.add(node)
+                    node_occurrences[node] = 1
                 else:
-                    node_idx = seen_nodes.index(node)
-                    node_occurrences[node_idx] += 1
-        dict = {}
-        for node in seen_nodes:
-            dict[node] = node_occurrences[seen_nodes.index(node)]
+                    node_occurrences[node] += 1
 
-        return dict
+        return node_occurrences
 
     def get_seen_channels(self):
+        """
+        :return: map with channels and number of their occurences
+        """
         seen_channels = []
         channels_occurrences = []
 
@@ -256,6 +268,11 @@ class LogProcessor:
         return dict
 
     def get_seen_links(self,type="occurrences"):
+        """
+
+        :param type:
+        :return:
+        """
         seen_links = []
 
         if type is "occurrences":
@@ -311,6 +328,7 @@ class LogProcessor:
                 theoretical_freq.append(f_th)
                 measured_freq.append(f_meas)
         print("There are %i frequencies mismatch" % freq_mismatch)
+
 
         return
 
