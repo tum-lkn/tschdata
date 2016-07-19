@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy
-from basic_processor import BasicProcessor
-from log_processor import LogProcessor
+from dataprocessing.basic_processor import BasicProcessor
 
 
 def print_dataset_parameters():
@@ -17,7 +16,7 @@ def print_dataset_parameters():
     for i in range(1, 3):
         print("\n")
 
-        d = LogProcessor(filename="../../WHData/Data/LKN_measurements_140716/Logs/%d.log" % i,
+        d = BasicProcessor(filename="../../../WHData/Data/LKN_measurements_140716/Logs/%d.log" % i,
                    format="WHITENING")
 
         tp=d.get_number_of_packets()
@@ -58,7 +57,7 @@ def test_multichannel():
     """
 
     for i in range(1, 3):
-        p = BasicProcessor(filename="../../WHData/Data/LKN_measurements_140716/Logs/%d.log" % i,
+        p = BasicProcessor(filename="../../../WHData/Data/LKN_measurements_140716/Logs/%d.log" % i,
                        format="WHITENING")
 
         # p.plot_avg_hops()
@@ -66,9 +65,9 @@ def test_multichannel():
 
         # p.plot_timeline()
 
-        p.correct_timeline(clean_all=False)
+        p.correct_timeline()
         p.plot_motes_reliability()
-        p.plot_channels_reliability("../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i)
+        p.plot_channels_reliability("../../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i)
 
         D=p.get_seen_nodes()
 

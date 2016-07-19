@@ -3,27 +3,17 @@ Most basic processing and plots from the dump.
 Can be used to monitor current network status
 """
 
-__author__ = 'Mikhail Vilgelm'
-
-
 import os
 import matplotlib.pyplot as plt
-from os.path import isfile, join
 import numpy as np
-from matplotlib import gridspec
-from pylab import show, savefig, figure, \
-                ylim, boxplot, grid
 
-from log_processor import LogProcessor
-from toolbox import set_box_plot, set_figure_parameters, get_all_files
-from tsch_hopping_calculator import TSCHopping
-import csv
-
+from dataprocessing.log_processor import LogProcessor
+from dataprocessing.toolbox import set_box_plot, set_figure_parameters, get_all_files
+from dataprocessing.tsch_hopping_calculator import TSCHopping
 
 set_figure_parameters()
 
 gl_mote_range = range(1, 33)
-# gl_dump_path = os.getenv("HOME") + '/Projects/TSCH/github/dumps/'
 
 gl_dump_path = os.getcwd() + '/../'
 
@@ -220,7 +210,6 @@ class BasicProcessor(LogProcessor):
                             channel_usage_cnt[d_freq - 11] += 1
 
 
-        #channel_drops_cnt = [ channel_drop/max(channel_drops_cnt) for channel_drop in channel_drops_cnt]
         channel_drops_cnt = [channel_drop / (channel_usage_cnt[i]+1) for i,channel_drop in enumerate(channel_drops_cnt)]
         print(channel_drops_cnt)
         print("There are %d out of range frequencies out of %d packets" % (big_error, len(self.packets)))
@@ -240,230 +229,6 @@ class BasicProcessor(LogProcessor):
 
         return
 
-
-<<<<<<< HEAD
-def plot_normalized_delay_per_application():
-    """
-    Plot delay for scenario / application: normalized per hop
-    :return:
-    """
-
-    # --- folder one --- #
-    folder = os.getcwd() + '/../' + 'tdma/'
-
-    files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
-    files = sorted(files)
-
-    d_tdma = []
-
-    for filename in files:
-        p = BasicProcessor(filename=folder+filename)
-        d_tdma.append(p.get_all_delays(motes=[2, 3, 4, 5, 6, 7, 8], normalized=True))
-        d_tdma.append(p.get_all_delays(motes=[9, 10, 11], normalized=True))
-
-    # --- folder two --- #
-    folder = os.getcwd() + '/../' + 'shared/'
-
-    files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
-    files = sorted(files)
-
-    d_shared = []
-
-    for filename in files:
-        p = BasicProcessor(filename=folder+filename)
-        d_shared.append(p.get_all_delays(motes=[2, 3, 4, 5, 6, 7, 8], normalized=True))
-        d_shared.append(p.get_all_delays(motes=[9, 10, 11], normalized=True))
-
-    # --- folder two --- #
-
-    fig = plt.figure(figsize=(7.5, 5.7))
-    gs = gridspec.GridSpec(2, 1, height_ratios=[1, 1])
-
-    ax0 = fig.add_subplot(gs[0])
-    bp_tdma = ax0.boxplot(d_tdma, showmeans=True, showfliers=False)
-
-    x_axis = list(range(9))
-    labels = ['', 'I(P)', 'I(B)', 'II(P)', 'II(B)', 'III(P)', 'III(B)', 'IV(P)', 'IV(B)']
-    plt.xticks(x_axis, labels)
-
-    # ylim((0, 4))
-    grid(True)
-
-    # plt.xlabel('Data set')
-    plt.ylabel('Delay, s')
-
-    set_box_plot(bp_tdma)
-
-    ax1 = fig.add_subplot(gs[1])
-    bp_shared = ax1.boxplot(d_shared, showmeans=True, showfliers=False)
-
-    # ylim((0, 0.2))
-    grid(True)
-
-    # plt.xlabel('Data set')
-    labels = ['', 'V(P)', 'V(B)', 'VI(P)', 'VI(B)', 'VII(P)', 'VII(B)', 'VIII(P)', 'VIII(B)']
-    plt.xticks(x_axis, labels)
-
-    plt.ylabel('Delay, s')
-
-    set_box_plot(bp_shared)
-
-    savefig('../../SGMeasurements/pics/app_delay.pdf', format='pdf', bbox='tight')
-    show()
-
-
-def plot_all_retx():
-    """
-
-    :return:
-    """
-    for folder in ['../tdma/', '../shared/']:
-        files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
-        files = sorted(files)
-        for filename in files:
-            p = BasicProcessor(filename=folder+filename)
-            p.plot_retx()
-    plt.show()
-
-
-def plot_all_delays(cdf=False):
-    """
-    Plot delay for all packets, on the scenario basis
-    :return:
-    """
-    # --- folder one --- #
-    folder = os.getcwd() + '/../' + 'tdma/'
-
-    files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
-    files = sorted(files)
-
-    d = []
-
-    for filename in files:
-        p = BasicProcessor(filename=folder+filename)
-        d.append(p.get_all_delays())
-
-    # --- folder two --- #
-    folder = os.getcwd() + '/../' + 'shared/'
-
-    files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
-    files = sorted(files)
-
-    for filename in files:
-        p = BasicProcessor(filename=folder+filename)
-        d.append(p.get_all_delays())
-
-    # --- folder two --- #
-
-    if not cdf:
-
-        figure(figsize=(7.5, 4))
-
-        bp = boxplot(d, showmeans=True, showfliers=False)
-
-        ylim((0, 2.5))
-        grid(True)
-
-        x_axis = list(range(9))
-        labels = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
-        plt.xticks(x_axis, labels)
-
-        plt.xlabel('Data set')
-        plt.ylabel('End-to-end delay, s')
-
-        set_box_plot(bp)
-
-        savefig('../../sgpaper/pics/all_delay.pdf', format='pdf', bbox='tight')
-        show()
-    else:
-
-        figure(figsize=(7.5, 4))
-
-        for data_set in d:
-
-            ecdf = sm.distributions.ECDF(data_set)
-
-            x = np.linspace(min(data_set), max(data_set))
-            y = ecdf(x)
-
-            plt.step(x, y)
-
-            plt.xlim((0, 2.5))
-
-        plt.show()
-
-
-def plot_all_reliabilities():
-    """
-    Plot packet delivery ratio for all data sets
-    :return:
-    """
-    rel = []
-    avg = []
-    f = open('seqn.csv', 'a+')
-    wr = csv.writer(f, quoting=csv.QUOTE_ALL)
-
-    for filename in get_all_files(gl_dump_path):
-        p = BasicProcessor(filename=filename)
-        p.correct_timeline(clean_all=False)
-        p.plot_timeline(writer=wr)
-        r, w = p.plot_reliability(return_result=True)
-        rel.append(r)
-        avg.append(w)
-
-    f.close()
-
-    plt.figure(figsize=(7.5, 3.5))
-    bp = plt.boxplot(rel, flierprops={'linewidth':1.5}, showmeans=True)
-
-    plt.hlines(0.95, xmin=0, xmax=9, linestyles='--', linewidth=1, label='0.95')
-    x_axis = list(range(9))
-    labels = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
-
-    plt.xticks(x_axis, labels)
-    plt.grid(True)
-    plt.ylim((0.35, 1.1))
-    plt.legend(loc=4)
-
-    plt.ylabel('PDR')
-
-    set_box_plot(bp)
-
-    plt.show()
-
-
-def test_multichannel():
-    """
-    Test basic performance parameters for whitening measurements
-    :return:
-    """
-    max_retxs = [4,2,4]
-    for i in range(1, 3):
-        p = BasicProcessor(filename="../../WHData/Data/LKN_measurements_190716/Logs/%d.log" % i,
-                       format="WHITENING")
-
-        # p.plot_avg_hops()
-        # p.plot_delays()
-
-        # p.plot_timeline()
-
-        p.correct_timeline(clean_all=False)
-        p.plot_motes_reliability()
-        p.plot_channels_reliability("../../WHData/Data/LKN_measurements_190716/Schedules/schedules_%d" % i,max_retxs[i-1])
-
-        # D=p.get_seen_nodes()
-        #
-        # plt.figure()
-        # plt.bar(range(len(D)), D.values(), align='center')
-        # plt.xticks(range(len(D)), D.keys())
-
-
-        #print(p.get_seen_channels())
-        #p.plot_hopping("../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i)
-
-    plt.grid(True)
-    #plt.legend()
-    plt.show()
 
 
 if __name__ == '__main__':

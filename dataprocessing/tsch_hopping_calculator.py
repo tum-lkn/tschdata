@@ -1,6 +1,6 @@
 
 import json
-from toolbox import get_all_files
+from dataprocessing.toolbox import get_all_files
 
 
 # Todo use schedule class from toolbox

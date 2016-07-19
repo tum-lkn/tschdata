@@ -1,15 +1,11 @@
 """
 Main module for log processing
 """
-__author__ = 'Mikhail Vilgelm'
-
-
-from uinject_packet import TestbedPacket
-from toolbox import find_latest_dump
-from tsch_hopping_calculator import TSCHopping
 import os
 import numpy as np
-import json
+
+from dataprocessing.uinject_packet import TestbedPacket
+from dataprocessing.tsch_hopping_calculator import TSCHopping
 
 
 gl_mote_range = range(1, 34)

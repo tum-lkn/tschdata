@@ -3,11 +3,10 @@ __author__ = 'Samuele Zoppi'
 import os
 import matplotlib.pyplot as plt
 import networkx as nx
-
-from log_processor import LogProcessor
 from operator import itemgetter
-# from networkx.drawing.nx_agraph import write_dot
-# from dataSetProcessor import DataSetProcessor
+
+from dataprocessing.log_processor import LogProcessor
+
 
 
 gl_dump_path = os.getcwd() + '/../shared'

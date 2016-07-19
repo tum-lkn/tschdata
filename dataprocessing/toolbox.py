@@ -4,15 +4,12 @@ Helper functions and basic data structures for processing of logged packet.
 
 import scipy.stats as st
 from pylab import setp
-
 import os
 from os.path import isfile, join
 from seaborn.apionly import heatmap
 import numpy as np
 import matplotlib.pyplot as plt
-
 from matplotlib import rcParams
-rcParams.update({'figure.autolayout': True})
 
 
 class Schedule:

@@ -7,10 +7,10 @@ from functools import reduce
 import matplotlib.pyplot as plt
 import operator
 from matplotlib import gridspec
-from basic_processor import BasicProcessor
+from dataprocessing.basic_processor import BasicProcessor
 
-from toolbox import set_figure_parameters, get_all_files
-from adv_delay_processor import AdvDelayProcessor
+from dataprocessing.toolbox import set_figure_parameters, get_all_files
+from dataprocessing.adv_delay_processor import AdvDelayProcessor
 
 
 set_figure_parameters()

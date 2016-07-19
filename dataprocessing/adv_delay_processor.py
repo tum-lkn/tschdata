@@ -7,12 +7,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib import gridspec
-from basic_processor import set_box_plot
 
-from matplotlib import rcParams
-rcParams.update({'figure.autolayout': True})
-from log_processor import LogProcessor
-from toolbox import set_figure_parameters, Schedule
+from dataprocessing.basic_processor import set_box_plot
+from dataprocessing.log_processor import LogProcessor
+from dataprocessing.toolbox import set_figure_parameters, Schedule
 
 
 set_figure_parameters()
