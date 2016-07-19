@@ -120,7 +120,13 @@ class Schedule:
             # pass
         return delay
 
+
 def find_latest_dump(path):
+    """
+    Find the lastest file in the folder
+    :param path:
+    :return:
+    """
     mtime = lambda f: os.stat(os.path.join(path, f)).st_mtime
     return list(sorted(os.listdir(path), key=mtime))[-1]
 
@@ -172,6 +178,12 @@ def mean_confidence_interval(data, confidence=0.95):
 
 
 def get_all_files(path, folders=None):
+    """
+    Get all files in the folder
+    :param path:
+    :param folders:
+    :return:
+    """
 
     files = []
 
