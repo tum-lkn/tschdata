@@ -3,6 +3,7 @@ import json
 from toolbox import get_all_files
 
 
+# Todo use schedule class from toolbox
 class NetSchedule:
     def __init__(self, slotframe_length, n_active_slots, hopping_seq,m_slot_map):
         self.hopping_sequence=hopping_seq

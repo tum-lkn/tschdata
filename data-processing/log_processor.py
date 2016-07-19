@@ -330,7 +330,7 @@ class LogProcessor:
         print("There are %i frequencies mismatch" % freq_mismatch)
 
 
-        return
+        return theoretical_freq,measured_freq
 
 
 
