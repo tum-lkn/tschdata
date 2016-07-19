@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy
 from dataprocessing.basic_processor import BasicProcessor
+from dataprocessing.toolbox import set_figure_parameters
 
+set_figure_parameters()
 
 def print_dataset_parameters():
     """
@@ -55,31 +57,21 @@ def test_multichannel():
     Test basic performance parameters for whitening measurements
     :return:
     """
-    max_retxs = [4,2,4]
 
-    for i in range(1, 3):
-        p = BasicProcessor(filename="../../../WHData/Data/LKN_measurements_140716/Logs/%d.log" % i,
+    plt.figure()
+
+    for idx, label in enumerate(['Random', 'Whitelist', 'Golden']):
+        p = BasicProcessor(filename="../../../WHData/Data/LKN_measurements_190716/Logs/%d.log" % (idx+1, ),
                        format="WHITENING")
 
-        # p.plot_avg_hops()
-        # p.plot_delays()
-
-        # p.plot_timeline()
-
         p.correct_timeline()
-        p.plot_motes_reliability()
-        p.plot_channels_reliability("../../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i,max_retxs
-                                    [i-1])
+        avg, ci = p.plot_motes_reliability(burst_size=11)
+        print(avg)
+        print(ci)
+        eb = plt.errorbar(x=[i for i in range(len(avg))], y=avg, yerr=ci, label=label, lw=1.5, capsize=10)
+        eb[-1][0].set_linewidth(1.5)
 
-        D=p.get_seen_nodes()
-
-        plt.figure()
-        plt.bar(range(len(D)), D.values(), align='center')
-        plt.xticks(range(len(D)), D.keys())
-
-
-        p.plot_hopping("../../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i)
-
+    plt.legend(loc=0)
     plt.grid(True)
     plt.show()
 

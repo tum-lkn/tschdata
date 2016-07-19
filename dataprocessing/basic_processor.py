@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from dataprocessing.log_processor import LogProcessor
-from dataprocessing.toolbox import set_box_plot, set_figure_parameters, get_all_files
+from dataprocessing.toolbox import set_box_plot, set_figure_parameters, mean_confidence_interval
 from dataprocessing.tsch_hopping_calculator import TSCHopping
 
 set_figure_parameters()
@@ -141,18 +141,28 @@ class BasicProcessor(LogProcessor):
 
         plt.grid(True)
 
-    def plot_motes_reliability(self, return_result=False):
+    def plot_motes_reliability(self, **kwargs):
         """
         Plot application layer reliability for all motes.
         :param return_result:
         :return:
         """
+        try:
+            return_result = kwargs["return_result"]
+        except KeyError:
+            return_result = True
+        try:
+            burst_size = kwargs["burst_size"]
+        except KeyError:
+            burst_size = None
 
         motes = self.sort_by_motes()
 
         success = []
 
         weights = []
+
+        ci = []
 
         for mote in motes:
             # convert to set
@@ -162,13 +172,40 @@ class BasicProcessor(LogProcessor):
             seen_sqns = set([pkt.seqN for pkt in mote])
             max_sqn = max(seen_sqns)
             min_sqn = min(seen_sqns)
-            pdr = len(seen_sqns)/(max_sqn-min_sqn+1)
 
-            success.append(pdr)
-            weights.append(max_sqn-min_sqn)
+            if not (burst_size is None):
 
-            print('Max seqn: %d, min seqn: %d, distinct packets: %d' % (max_sqn, min_sqn, len(seen_sqns)))
-            print('PDR: %.5f' % pdr)
+                packet_delivery_ratios = []
+                counter = min_sqn
+                success_counter = 0
+
+                # process the first burst
+                for sqn in range(min_sqn, burst_size+1):
+                    if sqn in seen_sqns:
+                        success_counter += 1
+                    counter += 1
+                packet_delivery_ratios.append(success_counter/burst_size)
+
+                while counter <= max_sqn:
+                    success_counter = 0
+                    for _ in range(burst_size):
+                        if counter in seen_sqns:
+                            success_counter += 1
+                        counter += 1
+                    packet_delivery_ratios.append(success_counter/burst_size)
+
+                success.append(np.mean(packet_delivery_ratios))
+                weights.append(max_sqn - min_sqn)
+                ci.append(mean_confidence_interval(packet_delivery_ratios))
+
+            else:
+                pdr = len(seen_sqns)/(max_sqn-min_sqn+1)
+
+                success.append(pdr)
+                weights.append(max_sqn-min_sqn)
+
+                print('Max seqn: %d, min seqn: %d, distinct packets: %d' % (max_sqn, min_sqn, len(seen_sqns)))
+                print('PDR: %.5f' % pdr)
 
         print('Average PDR: %.5f' % np.mean(success))
 
@@ -177,9 +214,11 @@ class BasicProcessor(LogProcessor):
 
         weighted_avg = sum([weights[idx]*s for idx, s in enumerate(success)])
 
-
         if return_result:
-            return success, weighted_avg
+            if not burst_size:
+                return success, weighted_avg
+            else:
+                return success, ci
         else:
             plt.figure()
             mote_range = [mote_id for idx, mote_id in enumerate(gl_mote_range) if idx % 2 == 0]
