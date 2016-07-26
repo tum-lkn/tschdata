@@ -306,37 +306,9 @@ class LogProcessor:
             avg_rssi=[np.mean(rssis_per_link) for rssis_per_link in link_rssi]
             return seen_links,avg_rssi
 
-    def check_hopping(self,schedule_folder):
-        """
-        FIXME move to whitening scripts
-        :param schedule_folder:
-        :return:
-        """
-        a = TSCHopping(schedule_folder)
-
-        theoretical_freq = []
-        measured_freq = []
-
-        freq_mismatch= 0
-        for pkt in self.packets:
-            for hop in pkt.hop_info:
-                f_th = a.calculate_frequency(hop['addr'], pkt.asn_last)
-                f_meas = hop['freq']
-
-                if f_meas != f_th:
-                    freq_mismatch += 1
-
-                theoretical_freq.append(f_th)
-                measured_freq.append(f_meas)
-        print("There are %i frequencies mismatch" % freq_mismatch)
-
-
-        return theoretical_freq,measured_freq
-
-
-
 if __name__ == '__main__':
 
+    pass
     # if len(sys.argv) != 2:
     #    exit("Usage: %s dumpfile" % sys.argv[0])
 
@@ -357,5 +329,5 @@ if __name__ == '__main__':
 
     # Main whitening measurements
 
-    p =LogProcessor(filename = "../../WHData/Data/LKN_measurements_140716/Logs/1.log",format = "WHITENING")
-    p.check_hopping("../../WHData/Data/LKN_measurements_140716/Schedules/schedules_1")
+    # p =LogProcessor(filename = "../../WHData/Data/LKN_measurements_140716/Logs/1.log",format = "WHITENING")
+    # p.check_hopping("../../WHData/Data/LKN_measurements_140716/Schedules/schedules_1")

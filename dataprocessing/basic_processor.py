@@ -226,8 +226,9 @@ class BasicProcessor(LogProcessor):
 
     def plot_channels_reliability(self, schedule_folder, max_retx):
         """
-        TODO better representation
+        Plots the channel drop ratios of lost packets looking in the schedule
         :param schedule_folder:
+        :param maximum retransmission counter:
         :return:
         """
 
@@ -251,22 +252,11 @@ class BasicProcessor(LogProcessor):
 
         channel_drops_cnt = [channel_drop / (channel_usage_cnt[i]+1) for i,channel_drop in enumerate(channel_drops_cnt)]
         print(channel_drops_cnt)
-        print("There are %d out of range frequencies out of %d packets" % (big_error, len(self.packets)))
+        print("[basic_proc.plot_channels_reliability]: There are %d out of range frequencies out of %d packets" % (big_error, len(self.packets)))
         plt.figure()
         plt.plot(channel_drops_cnt)
         return
 
-
-    def plot_hopping(self, schedule_folder):
-
-        theoretical_freq, measured_freq = self.check_hopping(schedule_folder)
-
-        # Todo how to do this??? Plot multiple curves on a single figure
-        # plt.figure()
-        # plt.plot(theoretical_freq)
-        # plt.plot(measured_freq)
-
-        return
 
 if __name__ == '__main__':
     pass

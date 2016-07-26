@@ -1,11 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy
 from dataprocessing.basic_processor import BasicProcessor
-<<<<<<< HEAD
-from dataprocessing.toolbox import set_figure_parameters
-=======
-from dataprocessing.toolbox import set_box_plot
->>>>>>> 779fa7b1ac4ecb9e316c9a841f56666873d81be2
+from dataprocessing.toolbox import set_figure_parameters,set_box_plot
+from dataprocessing.tsch_hopping_calculator import TSCHopping
 
 set_figure_parameters()
 
@@ -24,8 +21,9 @@ def print_dataset_parameters():
     for i in range(1, 4):
         print("\n")
 
-        d = BasicProcessor(filename="../../../WHData/Data/LKN_measurements_190716/Logs/%d.log" % i,
+        d = BasicProcessor(filename="../../../WHData/Data/2007/Logs/%d.log" % i,
                    format="WHITENING")
+        #LKN_measurements_190716
 
         tp=d.get_number_of_packets()
         dur = d.get_total_duration() / 60  # in minutes
@@ -70,7 +68,7 @@ def print_dataset_parameters():
     plt.grid(True)
     plt.show()
 
-def test_multichannel():
+def plot_channel_drops():
     """
     Test basic performance parameters for whitening measurements
     :return:
@@ -78,29 +76,24 @@ def test_multichannel():
 
     plt.figure()
 
+    max_retxs = [4,1,4]
     for idx, label in enumerate(['Random', 'Whitelist', 'Golden']):
-        p = BasicProcessor(filename="../../../WHData/Data/LKN_measurements_190716/Logs/%d.log" % (idx+1, ),
+        p = BasicProcessor(filename="../../../WHData/Data/2007/Logs/%d.log" % (idx+1, ),
                        format="WHITENING")
 
-        p.correct_timeline()
-        p.plot_motes_reliability()
-        p.plot_channels_reliability("../../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i,max_retxs
-                                    [i-1])
 
-        D=p.get_seen_nodes()
+        p.plot_channels_reliability("../../../WHData/Data/2007/Schedules/schedules_%d" % (idx+1,  ),max_retxs[idx])
 
-        plt.figure()
-        plt.bar(range(len(D)), D.values(), align='center')
-        plt.xticks(range(len(D)), D.keys())
+        # D=p.get_seen_nodes()
+        #
+        # plt.bar(range(len(D)), D.values(), align='center')
+        # plt.xticks(range(len(D)), D.keys())
 
-        p.plot_hopping("../../../WHData/Data/LKN_measurements_140716/Schedules/schedules_%d" % i)
-
-    plt.legend(loc=0)
     plt.grid(True)
     plt.show()
 
     fig = plt.gcf()
-    # Todo not working
+    # Todo save to file not working
     # fig.savefig("dataset_whitening.pdf", format='pdf', bbox='tight')
 
 
@@ -113,7 +106,7 @@ def plot_per_mote_rel():
     plt.figure()
 
     for idx, label in enumerate(['Random', 'Whitelist', 'Golden']):
-        p = BasicProcessor(filename="../../../WHData/Data/LKN_measurements_190716/Logs/%d.log" % (idx+1, ),
+        p = BasicProcessor(filename="../../../WHData/Data/2007/Logs/%d.log" % (idx+1, ),
                        format="WHITENING")
 
         p.correct_timeline()
@@ -136,6 +129,51 @@ def plot_latencies():
     pass
 
 
+def check_hopping(log_folder,schedule_folder):
+    """
+    Checks that frequencies in the log file are consistent with the specified schedule
+    :param log_folder:
+    :param schedule_folder:
+    :return:
+    """
+    p = BasicProcessor(filename=log_folder,format="WHITENING")
+    a = TSCHopping(schedule_folder)
+
+    theoretical_freq = []
+    measured_freq = []
+
+    freq_mismatch = 0
+    for pkt in p.packets:
+        for hop in pkt.hop_info:
+            f_th = a.calculate_frequency(hop['addr'], pkt.asn_last)
+            f_meas = hop['freq']
+
+            if f_meas != f_th:
+                freq_mismatch += 1
+
+            theoretical_freq.append(f_th)
+            measured_freq.append(f_meas)
+    print("[whitening.check_hopping]: There are %i frequencies mismatch\n" % freq_mismatch)
+
+    return theoretical_freq, measured_freq
+
+
+def plot_hopping():
+    plt.figure()
+
+    for idx, label in enumerate(['Random', 'Whitelist', 'Golden']):
+
+        theoretical_freq, measured_freq = check_hopping("../../../WHData/Data/2007/Logs/%d.log" % (idx + 1,),
+                                                        "../../../WHData/Data/2007/Schedules/schedules_%d" % (idx+1, ))
+
+        # Todo how to do this??? Plot multiple curves on a single figure
+        # plt.figure()
+        # plt.plot(theoretical_freq)
+        # plt.plot(measured_freq)
+
+    return
+
+
 def boxplot_motes(motes_occurrencies):
 
 
@@ -143,6 +181,8 @@ def boxplot_motes(motes_occurrencies):
 
 
 if __name__ == '__main__':
-    #test_multichannel()
-    print_dataset_parameters()
+    #plot_channel_drops()
+    #print_dataset_parameters()
+    plot_per_mote_rel()
+    #plot_hopping()
 
