@@ -1,7 +1,7 @@
 """
 Main module for log processing
 """
-import os
+import os, sys
 import numpy as np
 
 from dataprocessing.uinject_packet import TestbedPacket
@@ -308,26 +308,12 @@ class LogProcessor:
 
 if __name__ == '__main__':
 
-    pass
-    # if len(sys.argv) != 2:
-    #    exit("Usage: %s dumpfile" % sys.argv[0])
+    # if len(sys.argv) != 3:
+    #        exit("Usage: %s folder file" % sys.argv[0])
+    folder = "../tdma/"
+    # file = "4-1-high_load.log"
+    file = "1-1-no_interference.log"
 
-    # folder = gl_dump_path  + 'tdma'
-    #
-    # # p = LogProcessor(folder+find_latest_dump(folder))
-    # p = LogProcessor(filename=folder+'/no-interference-hopping/interference_hopping.log')
-    #
-    # print(p.find_motes_in_action())
-    #
-    # p.write_as_json('../json/tdma_interference.json')
-    #
-    # with open('../json/tdma_interference.json') as json_data:
-    #     a = json.load(json_data)
-    #
-    # print('finished loading... ')
-    # print(a['packets'][0])
+    p = LogProcessor(filename=folder + file)
 
-    # Main whitening measurements
-
-    # p =LogProcessor(filename = "../../WHData/Data/LKN_measurements_140716/Logs/1.log",format = "WHITENING")
-    # p.check_hopping("../../WHData/Data/LKN_measurements_140716/Schedules/schedules_1")
+    p.write_as_json('../json/' + file.split(".")[0] + ".json")

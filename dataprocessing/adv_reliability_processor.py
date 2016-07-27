@@ -19,8 +19,8 @@ set_figure_parameters()
 def prod(iterable):
     return reduce(operator.mul, iterable, 1)
 
-gl_best_links = '../matlab-murat/destinations.csv'
-gl_reliability = '../matlab-murat/reliability.csv'
+gl_best_links = '../matlab/destinations.csv'
+gl_reliability = '../matlab/reliability.csv'
 
 
 class AdvReliabilityProcessor():
