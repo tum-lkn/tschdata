@@ -39,10 +39,18 @@ class LogProcessor:
         :return: packets list
         """
         packets = []
+        i=0
         for line in self.yield_line():
-
+            i+=1
             if format == "WHITENING":
                 lines = line.split("] ")
+
+                if len(lines) < 2:
+                    #print("Parse error at line %d, trying to recover"% i)
+                    lines = line.split("]\t")
+                    if len(lines) < 2:
+                        print("Unrecoverable parse error")
+
                 line = lines[0] + "]"
 
                 timestamp = lines[1].split('\n')[0]

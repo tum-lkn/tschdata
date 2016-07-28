@@ -21,7 +21,7 @@ def print_dataset_parameters():
     for i in range(1, 4):
         print("\n")
 
-        d = BasicProcessor(filename="../../../WHData/Data/2007/Logs/%d.log" % i,
+        d = BasicProcessor(filename="../../../WHData/Data/2008/Logs/%d.log" % i,
                    format="WHITENING")
         #LKN_measurements_190716
 
@@ -74,27 +74,26 @@ def plot_channel_drops():
     :return:
     """
 
-    plt.figure()
-
     max_retxs = [4,1,4]
     for idx, label in enumerate(['Random', 'Whitelist', 'Golden']):
-        p = BasicProcessor(filename="../../../WHData/Data/2007/Logs/%d.log" % (idx+1, ),
+        p = BasicProcessor(filename="../../../WHData/Data/2008/Logs/%d.log" % (idx+1, ),
                        format="WHITENING")
 
-
-        p.plot_channels_reliability("../../../WHData/Data/2007/Schedules/schedules_%d" % (idx+1,  ),max_retxs[idx])
+        avg,ci = p.plot_windowed_channels_reliabilities("../../../WHData/Data/2008/Schedules/schedules_%d" % (idx+1,  )
+                                                        ,max_retxs[idx], n_windows=50)
+        # print(avg)
+        # print(ci)
+        # eb = plt.errorbar(x=[i for i in range(len(avg))], y=avg, yerr=ci, label=label, lw=1.5, capsize=10)
+        # eb[-1][0].set_linewidth(1.5)
+        #
+        #p.plot_channels_reliability("../../../WHData/Data/2008/Schedules/schedules_%d" % (idx+1,  ),max_retxs[idx])
 
         # D=p.get_seen_nodes()
         #
         # plt.bar(range(len(D)), D.values(), align='center')
         # plt.xticks(range(len(D)), D.keys())
 
-    plt.grid(True)
     plt.show()
-
-    fig = plt.gcf()
-    # Todo save to file not working
-    # fig.savefig("dataset_whitening.pdf", format='pdf', bbox='tight')
 
 
 def plot_per_mote_rel():
@@ -106,7 +105,7 @@ def plot_per_mote_rel():
     plt.figure()
 
     for idx, label in enumerate(['Random', 'Whitelist', 'Golden']):
-        p = BasicProcessor(filename="../../../WHData/Data/2007/Logs/%d.log" % (idx+1, ),
+        p = BasicProcessor(filename="../../../WHData/Data/2008/Logs/%d.log" % (idx+1, ),
                        format="WHITENING")
 
         p.correct_timeline()
@@ -163,12 +162,11 @@ def plot_hopping():
 
     for idx, label in enumerate(['Random', 'Whitelist', 'Golden']):
 
-        theoretical_freq, measured_freq = check_hopping("../../../WHData/Data/2007/Logs/%d.log" % (idx + 1,),
-                                                        "../../../WHData/Data/2007/Schedules/schedules_%d" % (idx+1, ))
+        theoretical_freq, measured_freq = check_hopping("../../../WHData/Data/2008/Logs/%d.log" % (idx + 1,),
+                                                        "../../../WHData/Data/2008/Schedules/schedules_%d" % (idx+1, ))
 
-        # Todo how to do this??? Plot multiple curves on a single figure
-        # plt.figure()
-        # plt.plot(theoretical_freq)
+        #plt.figure()
+        #plt.plot([theoretical_freq,measured_freq])
         # plt.plot(measured_freq)
 
     return
@@ -179,10 +177,27 @@ def boxplot_motes(motes_occurrencies):
 
     return
 
+def check_timestamp():
+    p = BasicProcessor(filename="../../../WHData/Data/2008/Logs/1.log",
+                       format="WHITENING")
+
+    prev_timestamp = 0;
+    for pkt in p.packets:
+        timestamp = int(pkt.timestamp)
+
+        # Todo how to handle timestamp objects?
+        if prev_timestamp < timestamp:
+            prev_timestamp = timestamp
+        else:
+            print("Error")
+
+    return
+
 
 if __name__ == '__main__':
-    #plot_channel_drops()
+    plot_channel_drops()
+    #check_timestamp()
     #print_dataset_parameters()
-    plot_per_mote_rel()
+    #plot_per_mote_rel()
     #plot_hopping()
 

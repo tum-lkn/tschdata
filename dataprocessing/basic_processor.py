@@ -251,11 +251,62 @@ class BasicProcessor(LogProcessor):
 
 
         channel_drops_cnt = [channel_drop / (channel_usage_cnt[i]+1) for i,channel_drop in enumerate(channel_drops_cnt)]
-        print(channel_drops_cnt)
+
         print("[basic_proc.plot_channels_reliability]: There are %d out of range frequencies out of %d packets" % (big_error, len(self.packets)))
+
         plt.figure()
         plt.plot(channel_drops_cnt)
+        plt.grid(True)
+
         return
+
+    def plot_windowed_channels_reliabilities(self, schedule_folder, max_retx, n_windows=10):
+        """
+        Plots the channel drop ratios of lost packets looking in the schedule
+        :param schedule_folder:
+        :param maximum retransmission counter:
+        :return:
+        """
+
+        a = TSCHopping(schedule_folder)
+
+        channel_drops_cnt = [ [0] * 16 for win in range(1,n_windows+2)]
+        channel_usage_cnt = [ [0] * 16 for win in range(1,n_windows+2)]
+
+        window_th = int(len(self.packets)/n_windows)
+        window_idx = 0
+        window_cnt = 0
+
+        ci = []
+
+        for p,pkt in enumerate(self.packets):
+            window_cnt += 1
+
+            for hop in pkt.hop_info:
+                if hop['retx'] != 0: #and hop['retx'] != 4:
+                    channel_usage_cnt[window_idx][hop['freq'] - 11] += 1
+                    for i in range(1,max_retx-hop['retx']+1):
+                        d_freq = a.calculate_dropped_frequency(hop['addr'],i,pkt.asn_last)
+                        channel_drops_cnt[window_idx][d_freq - 11] += 1
+                        channel_usage_cnt[window_idx][d_freq - 11] += 1
+
+            if window_cnt == window_th:
+                channel_drops_cnt[window_idx][:] = [channel_drop / (channel_usage_cnt[window_idx][i] + 1) for i, channel_drop in
+                                     enumerate(channel_drops_cnt[window_idx][:])]
+                window_cnt = 0
+                window_idx += 1
+
+        channel_drops_cnt[window_idx][:] = [channel_drop / (channel_usage_cnt[window_idx][i] + 1) for i, channel_drop in
+                                            enumerate(channel_drops_cnt[window_idx][:])]
+        for ch in range(1,17):
+            ci.append(mean_confidence_interval(channel_drops_cnt[:][ch]))
+
+
+
+        plt.figure()
+        plt.plot(channel_drops_cnt[1:-1][:])
+        plt.grid(True)
+        return channel_drops_cnt,ci
 
 
 if __name__ == '__main__':
