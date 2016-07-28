@@ -1,3 +1,5 @@
+# Overview
+
 This project contains the measurement traces of 802.15.4e Time Slotted Channel Hopping wireless sensor network, and tools for extracting the data from them.
 Evaluation results of these traces have been used in the publication:
 
@@ -7,7 +9,7 @@ IEEE International Conference on Smart Grid Communications (SmartGridComm), Sydn
 
 The data is distributed under the GNU GPLv3 license. If the data is used in a publication, we ask you to cite the above paper.
 
-Project structure:
+# Project structure:
 
   data/ - traces. Every file correspond to an experiment. Packets are recorded after their reception on the DAG root.
         json/ - files in self-explained json notation
@@ -20,6 +22,15 @@ Project structure:
 
   matlab/ - matlab tools for processing
 
+# Requirements
+
+Required packages can be found in dataprocessing/sgdata.yml or dataprocessing/requirements.txt
+
+# Usage
+
+TODO
+
+# Raw traces
 
 Raw data files structure:
 
