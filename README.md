@@ -3,24 +3,22 @@
 This project contains the measurement traces of 802.15.4e Time Slotted Channel Hopping wireless sensor network, and tools for extracting the data from them.
 Evaluation results of these traces have been used in the publication:
 
-M. Vilgelm, M. Gürsu, S. Zoppi, W. Kellerer,
-Time Slotted Channel Hopping for Smart Metering: Measurements and Analysis of Medium Access,
-IEEE International Conference on Smart Grid Communications (SmartGridComm), Sydney, Australia, November 2016
+- M. Vilgelm, M. Gürsu, S. Zoppi, W. Kellerer, **Time Slotted Channel Hopping for Smart Metering: Measurements and Analysis of Medium Access**, IEEE SmartGridComm, Sydney, Australia, November 2016
 
 The data is distributed under the GNU GPLv3 license. If the data is used in a publication, we ask you to cite the above paper.
 
 # Project structure:
 
   `data/` - traces. Every file correspond to an experiment. Packets are recorded after their reception on the DAG root.
-        `json/` - files in self-explained json notation
-        `raw/` - raw data, as recorded. For the structure see below.
-        `misc/`
+- `json/` - files in self-explained json notation
+- `raw/` - raw data, as recorded. For the structure see below.
+- `misc/`
 
-  `dataprocessing/` - python package containing tools and scripts for processing the traces. See doxygen documentation inside.
-        `sgdata.yml` - anaconda environment for using the package
-        `requirements.txt` - packages required (for pip users)
+`dataprocessing/` - python package containing tools and scripts for processing the traces. See doxygen documentation inside.
+- `sgdata.yml` - anaconda environment for using the package
+- `requirements.txt` - packages required (for pip users)
 
-  `matlab/` - matlab tools for processing
+`matlab/` - matlab scripts
 
 # Requirements
 
@@ -28,7 +26,7 @@ Required packages can be found in `dataprocessing/sgdata.yml` or `dataprocessing
 
 # Usage
 
-TODO
+Coming soon...
 
 # Raw traces
 
