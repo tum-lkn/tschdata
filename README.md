@@ -3,7 +3,7 @@
 This project contains the measurement traces of 802.15.4e Time Slotted Channel Hopping wireless sensor network, and tools for extracting the data from them.
 Evaluation results of these traces have been used in the publication:
 
-- M. Vilgelm, M. Gürsu, S. Zoppi, W. Kellerer, **Time Slotted Channel Hopping for Smart Metering: Measurements and Analysis of Medium Access**, IEEE SmartGridComm, Sydney, Australia, November 2016
+- M. Vilgelm, M. Gürsu, S. Zoppi, W. Kellerer, **Time Slotted Channel Hopping for Smart Metering: Measurements and Analysis of Medium Access**, IEEE SmartGridComm, Sydney, Australia, November 2016 (accepted for publication)
 
 The data is distributed under the GNU GPLv3 license. If the data is used in a publication, we ask you to cite the above paper.
 
