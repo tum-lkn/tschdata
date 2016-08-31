@@ -279,7 +279,7 @@ class BasicProcessor(LogProcessor):
 
         ci = []
 
-        for p,pkt in enumerate(self.packets):
+        for p, pkt in enumerate(self.packets):
             window_cnt += 1
 
             for hop in pkt.hop_info:
@@ -300,8 +300,6 @@ class BasicProcessor(LogProcessor):
                                             enumerate(channel_drops_cnt[window_idx][:])]
         for ch in range(1,17):
             ci.append(mean_confidence_interval(channel_drops_cnt[:][ch]))
-
-
 
         plt.figure()
         plt.plot(channel_drops_cnt[1:-1][:])
