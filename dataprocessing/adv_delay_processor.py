@@ -19,7 +19,7 @@ gl_num_active_slots = 13
 gl_num_off_slots = 2
 gl_num_serial_slots = 2
 gl_mote_range = range(1, 14)
-gl_dump_path = os.getcwd() + '/../'
+gl_dump_path = "../../data/raw"
 gl_image_path = '../../SGMeasurements/pics/'
 gl_save = False
 
@@ -168,11 +168,6 @@ class AdvDelayProcessor(LogProcessor):
         plt.xlabel('path')
         plt.legend(loc=0, fontsize=12, ncol=3)
 
-        if '3-1' in self.filename and 'shared' in self.filename:
-            plt.savefig(gl_image_path + 'path_delay_example.pdf', format='pdf', bbox='tight')
-
-        # plt.show()
-
         # return data for comparison plot
 
         interf_delay = []
@@ -220,11 +215,11 @@ def plot_all_path_delays(shared=False):
 
     # create a schedule
     if shared:
-        folder = gl_dump_path + 'shared/'
+        folder = gl_dump_path + '/shared/'
         sched = Schedule(num_slots=gl_num_active_slots, num_off=gl_num_off_slots,
                          num_serial=gl_num_serial_slots, shared=shared)
     else:
-        folder = gl_dump_path + 'tdma/'
+        folder = gl_dump_path + '/tdma/'
         sched = Schedule(num_slots=gl_num_active_slots, num_off=gl_num_off_slots, num_serial=gl_num_serial_slots)
 
     files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
@@ -249,7 +244,6 @@ def plot_all_path_delays(shared=False):
     # comparison figure for different delays
     plt.figure()
     plt.boxplot(int_delays + buf_delays, showmeans=True, showfliers=False)
-    # plt.ylim((-0.1, 1.5))
 
     x = range(1, 7)
     plt.xticks(x,  ['I (i)', 'III (i)', 'IV (i)', 'I (b)', 'III (b)', 'IV (b)'])
@@ -257,16 +251,16 @@ def plot_all_path_delays(shared=False):
     plt.setp(labels, rotation=0)
 
     plt.grid(True)
-    plt.savefig(gl_image_path+'delay_sources.png', format='png', bbox='tight')
+    plt.show()
 
 
 def plot_intercepting_path_delays(ax, shared=False):
     if shared:
-        folder = gl_dump_path + 'shared/'
+        folder = gl_dump_path + '/shared/'
         sched = Schedule(num_slots=gl_num_active_slots, num_off=gl_num_off_slots,
                          num_serial=gl_num_serial_slots, shared=shared)
     else:
-        folder = gl_dump_path + 'tdma/'
+        folder = gl_dump_path + '/tdma/'
         sched = Schedule(num_slots=gl_num_active_slots, num_off=gl_num_off_slots, num_serial=gl_num_serial_slots)
 
     files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
@@ -334,14 +328,13 @@ def plot_int_buf_delay():
 
     plt.xlabel('Data sets')
     plt.ylabel('Delay, s')
+    plt.show()
 
-    plt.savefig(gl_image_path+'int_buf_delay.pdf', format='pdf', bbox='tight')
 
 
 
 
 if __name__ == '__main__':
-    # plot_int_buf_delay()
     plot_all_path_delays(shared=True)
     plt.show()
 

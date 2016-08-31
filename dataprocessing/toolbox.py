@@ -6,7 +6,6 @@ import scipy.stats as st
 from pylab import setp
 import os
 from os.path import isfile, join
-#from seaborn.apionly import heatmap
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
@@ -101,7 +100,6 @@ class Schedule:
                 else:
                     delay += self.get_min_link_delay(hop-1, hop)
         else:
-            # TODO here for shared slots
             delay += (len(path)-1)*self.t_slot
 
         return delay
@@ -118,15 +116,10 @@ class Schedule:
                 if idx == 0:
                     # first hop - consider half delay for the first retransmission
                     delay += 0.5*self.frame_duration + self.frame_duration * (3 - hop['retx'])
-                    # delay += self.frame_length*(3 - hop['retx'])
                 else:
                     delay += (self.get_min_link_delay(pkt.hop_info[idx-1]['addr'], hop['addr']) +
                               self.frame_duration * (3 - hop['retx']))
-                # else:
-    #                delay += (self.get_min_link_delay(hop['addr'], 1) +
-    #                         self.frame_length*(3 - hop['retx']))
         else:
-            # TODO implement for shared slots
             for idx, hop in enumerate(pkt.hop_info):
                 if idx == 0:
                     delay += self.t_slot*sum([(2**i)/2 for i in range(1, 5 - hop['retx']) if i!=1])

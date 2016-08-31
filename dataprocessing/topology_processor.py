@@ -131,17 +131,6 @@ class TopologyLogProcessor(LogProcessor):
         l = list(G_temp.edges_iter(data='weight'))
         edgewidth = [data[2]/8 for data in l]
 
-        #v0.1
-        # pos = {1: (335, 630), 2: (220, 90), 3: (350, 90), 4: (590, 90), 5: (590, 590), 6: (710, 90),
-        #        7: (840, 590), 8: (975, 590), 9: (90, 50), 10: (970, 90), 11: (710, 590), 12: (335, 530),
-        #        13: (840, 90)}
-
-        #v0.2
-        # pos = {1: (330, 690), 2: (175, 175), 3: (300, 80), 4: (550, 175), 5: (590, 570), 6: (650, 80),
-        #        7: (930, 175), 8: (1050, 175), 9: (65, 80), 10: (930, 80), 11: (830, 630), 12: (330, 570),
-        #        13: (780, 80)}
-
-        #v0.3
         pos = {1: (330, 600), 2: (175, 175), 3: (300, 80), 4: (550, 175), 5: (590, 500), 6: (650, 80),
                7: (930, 175), 8: (1050, 175), 9: (65, 80), 10: (930, 80), 11: (830, 600), 12: (330, 480),
                13: (780, 80)}
@@ -166,13 +155,9 @@ class TopologyLogProcessor(LogProcessor):
 
         #IF Graph plots
         nx.draw_networkx_edges(IF, IF_pos)
-        #nx.draw_networkx_nodes(IF, IF_pos, node_color='#FFFFFF', with_labels=True)
         nx.draw_networkx_labels(IF, IF_pos, IF_labels, font_size=12)
 
         return
 
 if __name__ == '__main__':
-
-    folder = gl_dump_path
-
-
+    pass

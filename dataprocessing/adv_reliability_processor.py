@@ -19,8 +19,8 @@ set_figure_parameters()
 def prod(iterable):
     return reduce(operator.mul, iterable, 1)
 
-gl_best_links = '../matlab/destinations.csv'
-gl_reliability = '../matlab/reliability.csv'
+gl_best_links = '../../matlab/destinations.csv'
+gl_reliability = '../../matlab/reliability.csv'
 
 
 class AdvReliabilityProcessor():
@@ -115,7 +115,7 @@ def plot_delay_cdf():
     steps = [0.5, 1, 2, 5, 10]
 
 
-    for idx, logfile in enumerate(get_all_files('../')):
+    for idx, logfile in enumerate(get_all_files('../../data/raw/')):
 
         bp = BasicProcessor(filename=logfile)
         # delay_df.set_value(idx, 'set', logfile)
@@ -132,7 +132,6 @@ def plot_delay_cdf():
         plt.plot([i+1 for i, _ in enumerate(steps)], counts, gl_line_color_map[idx], label=gl_legend_map[idx])
 
     plt.hlines(0.95, xmin=0, xmax=len(steps)+1, linestyles='--', linewidth=2, label='0.95')
-    # plt.hlines(0.99, xmin=0, xmax=len(steps)+1, linestyles='--', linewidth=1)
 
     x_axis = [0.5] + list(range(1, len(steps)+1)) + [len(steps)+0.5]
     labels = [''] + [str(step) for step in steps] + ['']
@@ -144,16 +143,13 @@ def plot_delay_cdf():
     plt.xlabel('Deadline, s')
     plt.ylabel('Packet ratio')
 
-    plt.savefig('../../SGMeasurements/pics/cdf.pdf', format='pdf', bbox='tight')
-
     plt.show()
-
 
 
 def delay_reliabiltiy_correlation(logfile):
 
-    print(logfile.split('../')[-1])
-    ds = gl_data_set[logfile.split('../')[-1]]
+    print(logfile.split('../data/raw/')[-1])
+    ds = gl_data_set[logfile.split('../data/raw/')[-1]]
 
     dp = AdvDelayProcessor(filename=logfile)
     paths, _ = dp.get_all_paths_w_delay()
@@ -327,7 +323,7 @@ def plot_all_data(callback=plot_mean_vs_path_length):
 
     data_tdma = []
 
-    files = get_all_files('../', folders = ['tdma'])
+    files = get_all_files('../../data/raw/', folders = ['tdma'])
 
     for filename in files:
 
@@ -347,7 +343,7 @@ def plot_all_data(callback=plot_mean_vs_path_length):
 
     data_shared = []
 
-    files = get_all_files('../', folders=['shared'])
+    files = get_all_files('../../data/raw/', folders=['shared'])
 
     for filename in files:
         data_shared.append(delay_reliabiltiy_correlation(filename))
@@ -365,14 +361,13 @@ def plot_all_data(callback=plot_mean_vs_path_length):
     plt.grid(True)
 
     plt.tight_layout()
-    plt.savefig('../../SGMeasurements/pics/path_delay_vs_reliability.pdf', format='pdf', bbox='tight')
     plt.show()
 
 
 if __name__ == '__main__':
 
-    plot_all_data(plot_mean_vs_prod)
-    # plot_delay_cdf()
+    # plot_all_data(plot_mean_vs_prod)
+    plot_delay_cdf()
 
 
 

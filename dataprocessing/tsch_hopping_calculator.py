@@ -21,10 +21,8 @@ class TSCHopping:
                 mote_id = int(a_slot['address'].split(":")[-1][-2:],16)
                 self.mote_net_map.__setitem__(mote_id,idx)
 
-        #print('Schedules loaded')
 
     def load_schedule(self,file):
-        #print("Loading schedule "+file)
 
         # read and parse config
         config = read_config(file)
@@ -44,10 +42,6 @@ class TSCHopping:
             mote_id = int(slot['address'].split(":")[-1][-2:], 16)
             mote_slot_map.__setitem__(mote_id,idx)
 
-        #app_enabled = config["app_enabled"]
-        #app_type = config["app_type"]
-        #app_dest_addr = config["app_dest_addr"]
-
         return Schedule(len(active_slots),numslotoff,numserialrx,parsed_active_slots,hopping_sequence,mote_slot_map)
 
     def find_mote_info(self, mote_id):
@@ -66,20 +60,6 @@ class TSCHopping:
         target_schedule = self.schedules[self.mote_net_map.get(mote_id)]
         return self.calculate_frequency(mote_id, asn_last-n_frames_ago*target_schedule.frame_length)
 
-
-def read_config(fname):
-    """
-    Read configuration file as json object
-    :param fname: file to read from
-    :return: list of dicts
-    """
-
-    with open(fname) as data_file:
-        data = json.load(data_file)
-
-    # pprint(data)
-
-    return data
 
 if __name__ == '__main__':
     for i in range(1, 2):

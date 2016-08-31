@@ -26,7 +26,13 @@ Required packages can be found in `dataprocessing/sgdata.yml` or `dataprocessing
 
 # Usage
 
-Coming soon...
+To reproduce the results of the paper, you can use provided script `dataprocessing/scripts/plot_results.py`. For example, to plot figure #8:
+
+```bash
+python plot_results.py --figure 8
+```
+
+Note that reproducing figures 4, 6 (both generated with different tools), and 7 (exemplary figure, essentially part of figure 10) is not supported in the script.
 
 # Raw traces
 
