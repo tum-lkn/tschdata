@@ -10,6 +10,7 @@ from os.path import isfile, join
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
+import json
 
 
 class Schedule:
@@ -217,6 +218,16 @@ def get_all_files(path, folders=None):
 def set_figure_parameters():
     rcParams.update(
         {'figure.autolayout': True, 'font.size': 14, 'font.family': 'serif', 'font.sans-serif': ['Helvetica']})
+
+
+def load_config(fname):
+    config = json.load(open(fname, "r"))
+    print("########### Loaded configuration file: ")
+    print(config)
+    print("########### End of configuration file ")
+
+    gl_image_path = config["data_path"]
+    gl_dump_path = config["image_path"]
 
 
 if __name__ == '__main__':

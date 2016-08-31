@@ -19,7 +19,7 @@ class LogProcessor:
     Only basic functionality is contained in this class, plotting and advanced functions are in the subclasses
     """
 
-    def __init__(self, filename, format = "SMARTGRID"):
+    def __init__(self, filename, format="SMARTGRID"):
         print('Creating a processor for %s' % filename)
         self.filename = filename  # we only store the filename
         self.packets = self.load_packets(format)
@@ -46,7 +46,6 @@ class LogProcessor:
                 lines = line.split("] ")
 
                 if len(lines) < 2:
-                    #print("Parse error at line %d, trying to recover"% i)
                     lines = line.split("]\t")
                     if len(lines) < 2:
                         print("Unrecoverable parse error")
@@ -66,12 +65,12 @@ class LogProcessor:
 
         return packets
 
-    def calculate_mean_delay(self):
+    def calculate_mean_delay(self, addr):
         """
-        Average delay for all packets
+        Average delay for all packets from given addr
         :return: average delay
         """
-        return np.mean(self.get_delays())
+        return np.mean(self.get_delays(addr))
 
     def get_delays(self, addr, normalized=False):
         """
@@ -81,13 +80,14 @@ class LogProcessor:
         delay = []
         for pkt in self.packets:
             if pkt.src_addr != addr:
-                continue
+                # shouldn't be the case...
+                raise RuntimeError
 
             d = pkt.delay  # /pkt.num_hops()
 
             if d < 0:
                 # shouldn't be the case...
-                continue
+                raise RuntimeError
 
             if normalized:
                 d = d/pkt.num_hops()
@@ -271,7 +271,7 @@ class LogProcessor:
             dict[channel] = channels_occurrences[seen_channels.index(channel)]
         return dict
 
-    def get_seen_links(self,type="occurrences"):
+    def get_seen_links(self, type="occurrences"):
         """
 
         :param type:
@@ -314,14 +314,12 @@ class LogProcessor:
             avg_rssi=[np.mean(rssis_per_link) for rssis_per_link in link_rssi]
             return seen_links,avg_rssi
 
+
 if __name__ == '__main__':
 
-    # if len(sys.argv) != 3:
-    #        exit("Usage: %s folder file" % sys.argv[0])
-    folder = "../tdma/"
-    # file = "4-1-high_load.log"
+    folder = "../data/raw/tdma/"
+
     file = "1-1-no_interference.log"
 
     p = LogProcessor(filename=folder + file)
 
-    p.write_as_json('../json/' + file.split(".")[0] + ".json")

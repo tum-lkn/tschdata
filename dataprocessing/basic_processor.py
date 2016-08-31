@@ -17,12 +17,15 @@ gl_mote_range = range(1, 33)
 
 gl_dump_path = os.getcwd() + '/../'
 
-gl_image_path = os.getenv("HOME") + ''
+gl_image_path = os.getenv("HOME")
 
 
 class BasicProcessor(LogProcessor):
     """
-    Defines the basic analysis tools and plots of the log: retransmissions, delay, reliabiltiy...
+    Defines the basic analysis tools and plots of the log:
+    - retransmissions
+    - delay
+    - reliabiltiy
     """
 
     def __init__(self, **kwargs):
@@ -304,7 +307,7 @@ class BasicProcessor(LogProcessor):
         plt.figure()
         plt.plot(channel_drops_cnt[1:-1][:])
         plt.grid(True)
-        return channel_drops_cnt,ci
+        return channel_drops_cnt, ci
 
 
 if __name__ == '__main__':
