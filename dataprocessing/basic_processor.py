@@ -42,6 +42,8 @@ class BasicProcessor(LogProcessor):
             for hop in pkt.hop_info:
                 if hop['retx'] != 0:
                     retx.append(hop['retx'])
+                else:
+                    raise RuntimeError
 
         plt.figure()
         plt.hist(retx)
@@ -64,9 +66,8 @@ class BasicProcessor(LogProcessor):
         delays = []
         for addr in gl_mote_range:
             delays.append(self.get_delays(addr))
-        plt.boxplot(delays, showmeans=True)
 
-        plt.ylim((0, 2))
+        plt.boxplot(delays, showmeans=True)
 
         plt.ylabel('delay, s')
         plt.xlabel('mote #')
@@ -311,7 +312,10 @@ class BasicProcessor(LogProcessor):
 
 
 if __name__ == '__main__':
-    pass
+    processor = BasicProcessor(filename="../data/raw/tdma/1-1-no_interference.log")
+    processor.plot_delays()
+    processor.plot_retx()
+    plt.show()
 
 
 

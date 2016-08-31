@@ -80,8 +80,7 @@ class LogProcessor:
         delay = []
         for pkt in self.packets:
             if pkt.src_addr != addr:
-                # shouldn't be the case...
-                raise RuntimeError
+                continue
 
             d = pkt.delay  # /pkt.num_hops()
 
@@ -316,10 +315,7 @@ class LogProcessor:
 
 
 if __name__ == '__main__':
+    pass
 
-    folder = "../data/raw/tdma/"
 
-    file = "1-1-no_interference.log"
-
-    p = LogProcessor(filename=folder + file)
 
