@@ -67,7 +67,7 @@ class BasicProcessor(LogProcessor):
         for addr in gl_mote_range:
             delays.append(self.get_delays(addr))
 
-        plt.boxplot(delays, showmeans=True)
+        plt.boxplot(delays, showmeans=True, showfliers=False)
 
         plt.ylabel('delay, s')
         plt.xlabel('mote #')
@@ -121,7 +121,6 @@ class BasicProcessor(LogProcessor):
             if not writer is None:
                 writer.writerow([pkt.seqN for pkt in mote])
             plt.plot([pkt.seqN for pkt in mote], [pkt.asn_first for pkt in mote], label='#%d' % (idx+1, ))
-            # plt.plot([pkt.seqN for pkt in mote], label='#%d' % (idx + 1,))
 
         plt.xlabel('seqN')
         plt.ylabel('asn')
@@ -138,7 +137,7 @@ class BasicProcessor(LogProcessor):
 
         plt.figure()
 
-        plt.bar(gl_mote_range, [len(mote) for mote in motes])
+        plt.bar([i for i in range(len(motes))], [len(mote) for mote in motes])
 
         plt.xlabel('mote #')
         plt.ylabel('num packets received')
@@ -312,9 +311,13 @@ class BasicProcessor(LogProcessor):
 
 
 if __name__ == '__main__':
-    processor = BasicProcessor(filename="../data/raw/tdma/1-1-no_interference.log")
+    processor = BasicProcessor(filename="../data/raw/tdma/4-1-high_load.log")
     processor.plot_delays()
     processor.plot_retx()
+    processor.plot_avg_hops()
+    processor.plot_timeline()
+    processor.plot_num_packets()
+    processor.plot_motes_reliability(return_result=False)
     plt.show()
 
 
