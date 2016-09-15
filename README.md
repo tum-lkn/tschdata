@@ -6,6 +6,7 @@ Evaluation results of these traces have been used in the publication:
 - M. Vilgelm, M. Gürsu, S. Zoppi, W. Kellerer, **Time Slotted Channel Hopping for Smart Metering: Measurements and Analysis of Medium Access**, IEEE SmartGridComm, Sydney, Australia, November 2016 (accepted for publication)
 
 The data is distributed under the GNU GPLv3 license. If the data is used in a publication, we ask you to cite the above paper.
+If you find any bugs or inconsistencies, please contact the authors.
 
 # Project structure:
 
