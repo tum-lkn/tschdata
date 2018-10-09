@@ -59,16 +59,3 @@ class TSCHopping:
     def calculate_dropped_frequency(self, mote_id, n_frames_ago, asn_last):
         target_schedule = self.schedules[self.mote_net_map.get(mote_id)]
         return self.calculate_frequency(mote_id, asn_last-n_frames_ago*target_schedule.frame_length)
-
-
-if __name__ == '__main__':
-    for i in range(1, 2):
-
-        foldername="../../WHData/Data/Schedules/schedules_lkngolden"
-        a = TSCHopping(foldername)
-
-        mote_id = int('1a',16)
-        ASN = 1000
-        freq = a.calculate_frequency(mote_id,ASN)
-
-        print("The frequency used by %d to transmit in ASN %d is %d " % (mote_id,ASN,freq))
